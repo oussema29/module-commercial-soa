@@ -38,6 +38,33 @@ services:
     ports: ["5672:5672", "15672:15672"]   # 15672 : console web (guest / guest)
     healthcheck: { test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"], interval: 10s, retries: 10 }
 
+  campaign-service:
+    build: ./campaign-service
+    container_name: campaign-service
+    profiles: ["services"]
+    depends_on:
+      campaign-db: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    environment:
+      DB_URL: "jdbc:mysql://campaign-db:3306/campaign_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      DB_USER: root
+      DB_PASSWORD: soa
+      RABBIT_HOST: rabbitmq
+      # none (défaut) : aucune authentification ; jwt : chaque route d'employé exige un JWT (voir code/README.md)
+      SECURITY_MODE: ${SECURITY_MODE:-none}
+      JWT_SECRET: ${JWT_SECRET:-secret-de-developpement-secret-de-developpement-0123}
+      CUSTOMER_URL: http://customer-service:8081
+    ports: ["8083:8083"]
+
+  # Service de login PROVISOIRE (utilisateurs fictifs, émission de JWT) : à remplacer par le service Authentication de l'autre trinôme
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    profiles: ["services"]
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-secret-de-developpement-secret-de-developpement-0123}
+    ports: ["8084:8084"]
+
 volumes:
   customer-data:
   quotation-data:

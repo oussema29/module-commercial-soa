@@ -1,0 +1,44 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: auth-service
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false   # dates ISO 8601
+    time-zone: UTC
+
+app:
+  security:
+    # Le MÊME secret que celui des trois services (Customer, Quotation, Campaign). 32 caractères au moins.
+    # Jamais de vrai secret dans git : variable d'environnement JWT_SECRET.
+    jwt-secret: ${JWT_SECRET:secret-de-developpement-secret-de-developpement-0123}
+  auth:
+    duree-jeton-secondes: 3600
+    # UTILISATEURS FICTIFS DE DÉMONSTRATION, un par rôle. Les mots de passe ci-dessous sont en clair PARCE QU'ILS SONT FICTIFS :
+    # le service les chiffre (BCrypt) au démarrage et ne garde jamais le texte en clair. Ce service est PROVISOIRE : il sera
+    # remplacé par le service Authentication de l'autre trinôme (vraie base d'utilisateurs, inscription, etc.).
+    utilisateurs:
+      - id: 00000000-0000-0000-0000-0000000000a1
+        email: admin@exemple.tn
+        mot-de-passe: admin-demo-1
+        role: ADMIN
+      - id: 00000000-0000-0000-0000-0000000000a2
+        email: commercial@exemple.tn
+        mot-de-passe: commercial-demo-1
+        role: COMMERCIAL
+      - id: 00000000-0000-0000-0000-0000000000a3
+        email: marketing@exemple.tn
+        mot-de-passe: marketing-demo-1
+        role: MARKETING
+      - id: 00000000-0000-0000-0000-0000000000a4
+        email: responsable@exemple.tn
+        mot-de-passe: responsable-demo-1
+        role: RESPONSABLE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      # Une route = un préfixe de chemin -> un service. La passerelle ne contient AUCUNE règle métier : elle route seulement,
+      # et retransmet l'en-tête Authorization tel quel (les services décident des droits).
+      routes:
+        - id: customer
+          uri: ${CUSTOMER_URL:http://localhost:8081}
+          predicates:
+            - Path=/clients/**,/categories/**,/contacts/**,/interactions/**
+        - id: quotation
+          uri: ${QUOTATION_URL:http://localhost:8082}
+          predicates:
+            - Path=/devis/**,/produits/**,/taxes/**,/public/reponse/**
+        - id: campaign
+          uri: ${CAMPAIGN_URL:http://localhost:8083}
+          predicates:
+            - Path=/campagnes/**,/canaux/**,/contenus/**,/publics/**,/public/campagnes/**,/public/invitations/**
+        - id: auth
+          uri: ${AUTH_URL:http://localhost:8084}
+          predicates:
+            - Path=/login
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"      # développement : à restreindre à l'adresse de l'interface en production
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+app:
+  security:
+    # none (défaut) : la passerelle ne vérifie rien ; jwt : elle refuse (401) toute requête sans jeton valide avant de la transmettre.
+    # Dans les deux cas, ce sont les SERVICES qui contrôlent le rôle de chaque route.
+    mode: ${SECURITY_MODE:none}
+    # Le MÊME secret que celui des services et du service de login. Jamais de vrai secret dans git.
+    jwt-secret: ${JWT_SECRET:secret-de-developpement-secret-de-developpement-0123}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
