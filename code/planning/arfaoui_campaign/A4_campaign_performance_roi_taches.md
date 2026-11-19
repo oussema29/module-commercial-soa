@@ -6,9 +6,8 @@
 | **Responsable** | Oussema Arfaoui |
 | **Ce que couvre l'étape** | Mesures, performance (CPC, ROI), rapport PDF, fin automatique des campagnes |
 | **Dossier de code** | `code/campaign-service` |
-| **Code fourni** | Non : à écrire à partir de cette fiche |
 | **Prérequis** | A3 validée (l'essai du chiffre d'affaires attribué demande E1) |
-| **État** | À faire |
+| **État** | Fait (Oussema Arfaoui) : testé |
 
 ## 1. Objectif
 

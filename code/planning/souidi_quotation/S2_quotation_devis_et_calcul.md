@@ -6,9 +6,8 @@
 | **Responsable** | Oussema Souidi |
 | **Ce que couvre l'étape** | Création et modification des devis, lignes, calcul HT / TVA / TTC, annulation, historique par client ; lecture de Customer (lien I1) |
 | **Dossier de code** | `code/quotation-service` |
-| **Code fourni** | `GUIDE_CODE_QUOTATION.md (section 6)` : arborescence, code complet de chaque fichier, routes, tests |
 | **Prérequis** | S1 validée. Customer est **simulé** pendant le développement (réponses du contrat `customer.yaml`) ; l'essai réel se fait quand B1 est validée |
-| **État** | À faire |
+| **État** | À faire (Oussema Souidi) |
 
 ## 1. Objectif
 

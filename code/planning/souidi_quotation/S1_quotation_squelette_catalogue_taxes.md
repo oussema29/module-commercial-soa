@@ -6,9 +6,8 @@
 | **Responsable** | Oussema Souidi |
 | **Ce que couvre l'étape** | Catalogue de produits et taux de TVA |
 | **Dossier de code** | `code/quotation-service` |
-| **Code fourni** | `GUIDE_CODE_QUOTATION.md (section 5)` : arborescence, code complet de chaque fichier, routes, tests |
 | **Prérequis** | Aucun autre service : Quotation démarre seul (la structure de dossiers est décrite en B0) |
-| **État** | À faire |
+| **État** | À faire (Oussema Souidi) |
 
 ## 1. Objectif
 

@@ -6,9 +6,8 @@
 | **Responsable** | Tout le trinôme (Campaign : Oussema Arfaoui ; Quotation : Oussema Souidi ; Customer : Baha Farhati) |
 | **Ce que couvre l'étape** | Les deux événements RabbitMQ (liens I3 et I4), traités sans doublon |
 | **Dossier de code** | `code/ (les trois services)` |
-| **Code fourni** | Non : à écrire à partir de cette fiche |
 | **Prérequis** | B2, S3 et A3 validées ; RabbitMQ démarré |
-| **État** | À faire |
+| **État** | Part de Campaign faite ; parts de Customer et de Quotation à faire |
 
 ## 1. Objectif
 
@@ -45,8 +44,10 @@ Aucune route dans cette étape.
 - **Campaign consomme `DevisAccepte`** : (1) `eventId` déjà traité **ou** `campagneId` inconnu → ignorer sans erreur ; (2) sinon `devisAcceptes + 1` et `chiffreAffairesAttribue + montantHT`, **même si la campagne est TERMINEE** ; (3) enregistrer `eventId` dans la même transaction, puis accuser réception.
 - Le ROI n'est pas stocké : `(chiffreAffairesAttribue − montantDepense) / montantDepense`, seulement si `montantDepense > 0`.
 - Une autre équipe peut créer **sa propre file** liée à `devis.accepte` sans rien changer chez nous.
-- Un message impossible à traiter n'est pas rejoué à l'infini : après quelques essais il part dans une file des messages en échec (`*.dlq`, à déclarer).
-- Si RabbitMQ est indisponible au moment de publier : décision à noter dans la fiche et testée (voir « Points d'attention »).
+- **Topologie** : chaque service déclare l'échange `module-commercial` **et la file de son destinataire** (déclarations identiques, donc idempotentes) : un message publié n'est jamais perdu si le destinataire n'est pas encore démarré, il attend dans la file.
+- **Message impossible à traiter** : refusé sans remise en file (nack) ; il part dans la file des échecs `<file>.dlq`. Limite assumée : même une panne passagère de la base l'envoie en `.dlq` (pas de nouvel essai automatique).
+- **RabbitMQ indisponible au moment de publier** : la réponse du visiteur (`ProspectGenere`) ou l'acceptation du client (`DevisAccepte`) reste **enregistrée** ; l'événement est écrit en entier, **en JSON**, dans les logs (niveau ERROR, « ÉVÉNEMENT NON PUBLIÉ ») pour être republié à la main depuis la console de RabbitMQ. Pas d'« outbox » : limite assumée.
+- Les versions « logs » des éditeurs ne servent que si `app.events.rabbit=false` (tests) ; en fonctionnement normal `app.events.rabbit=true`.
 
 ## 5. Tâches, dans l'ordre
 
@@ -60,10 +61,11 @@ Aucune route dans cette étape.
 
 ## 6. Fichiers créés ou modifiés
 
-- `campaign-service : config/RabbitConfig ; messaging/ : EditeurEvenementsRabbit, DevisAccepteConsommateur ; entity/EvenementTraite ; repository/EvenementTraiteRepository`
+- `customer-service : config/RabbitConfig ; entity/EvenementTraite ; repository/EvenementTraiteRepository ; messaging/ProspectGenereEvent, ProspectGenereConsommateur ; service/ProspectService`
+- `campaign-service : config/RabbitConfig ; entity/EvenementTraite ; repository/EvenementTraiteRepository ; messaging/DevisAccepteEvent, DevisAccepteConsommateur, EditeurEvenementsRabbit ; service/DevisAccepteService`
 - `quotation-service : config/RabbitConfig ; messaging/EditeurEvenementsRabbit`
-- `customer-service : config/RabbitConfig ; messaging/ProspectGenereConsommateur ; entity/EvenementTraite ; repository/EvenementTraiteRepository ; service/ProspectService`
-- `src/test/java/... : consommateurs, idempotence, publication`
+- `les trois `application.yml` : accusé de réception manuel (`acknowledge-mode: manual`) ; Campaign et Quotation : `app.events.rabbit``
+- `tests : ProspectServiceTests, ProspectGenereConsommateurTest (Customer) ; DevisAccepteServiceTests, EvenementsRabbitTest (Campaign) ; EditeurEvenementsRabbitTest (Quotation)`
 
 ## 7. Tests à écrire
 
@@ -80,9 +82,9 @@ Aucune route dans cette étape.
 - RabbitMQ garantit « au moins une fois », jamais « exactement une fois » : sans `EvenementTraite`, un `DevisAccepte` rejoué compterait deux fois le chiffre d'affaires et fausserait le ROI sans aucune erreur visible.
 - L'enregistrement de `eventId` et l'effet métier doivent partager **la même transaction**, sinon on retrouve le doublon.
 - Accusé de réception manuel : n'accuser réception qu'**après** le commit de la transaction.
-- Si l'on publie dans la même transaction que l'enregistrement du devis, le message peut partir alors que la transaction échoue (ou l'inverse). On accepte cette limite pour le projet ; une table « outbox » garantirait l'envoi, mais elle reste hors périmètre. **Décider et écrire** le comportement quand RabbitMQ est indisponible à l'acceptation d'un devis (par exemple : l'acceptation est enregistrée, la publication est journalisée en erreur et rejouable).
 - Aucun service ne lit la base d'un autre : l'événement porte toutes les données utiles.
 - Ne pas mettre le jeton du devis ni de donnée inutile dans un événement.
+- La publication a lieu dans la même transaction que l'enregistrement de l'acceptation : si la transaction échoue après l'envoi, le message est déjà parti (limite connue, que résoudrait une table « outbox »).
 
 ## 9. Comment valider (à faire par le trinôme)
 

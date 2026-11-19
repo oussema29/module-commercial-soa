@@ -6,9 +6,8 @@
 | **Responsable** | Oussema Arfaoui |
 | **Ce que couvre l'étape** | Base technique de Campaign |
 | **Dossier de code** | `code/campaign-service` |
-| **Code fourni** | Non : à écrire à partir de cette fiche |
 | **Prérequis** | Aucun autre service : Campaign démarre seul (la structure de dossiers est décrite en B0) |
-| **État** | À faire |
+| **État** | Fait (Oussema Arfaoui) : service Campaign, testé |
 
 ## 1. Objectif
 

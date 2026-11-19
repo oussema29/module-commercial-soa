@@ -6,9 +6,8 @@
 | **Responsable** | Oussema Souidi |
 | **Ce que couvre l'étape** | PDF et envoi du devis par email, réponse du client par lien (accepter, refuser), expiration automatique ; l'événement `DevisAccepte` est publié en E1 |
 | **Dossier de code** | `code/quotation-service` |
-| **Code fourni** | `GUIDE_CODE_QUOTATION.md (section 7)` : arborescence, code complet de chaque fichier, routes, tests |
 | **Prérequis** | S2 validée |
-| **État** | À faire |
+| **État** | À faire (Oussema Souidi) |
 
 ## 1. Objectif
 

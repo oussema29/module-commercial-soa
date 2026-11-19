@@ -6,9 +6,8 @@
 | **Responsable** | Baha Farhati |
 | **Ce que couvre l'étape** | Contacts d'un client et interactions (appels, emails, réunions) |
 | **Dossier de code** | `code/customer-service` |
-| **Code fourni** | `GUIDE_CODE_CUSTOMER.md (section 6)` : arborescence, code complet de chaque fichier, routes, tests |
 | **Prérequis** | B1 validée |
-| **État** | À faire |
+| **État** | À faire (Baha Farhati) |
 
 ## 1. Objectif
 

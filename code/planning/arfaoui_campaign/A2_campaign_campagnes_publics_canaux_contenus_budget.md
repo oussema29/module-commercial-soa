@@ -6,9 +6,8 @@
 | **Responsable** | Oussema Arfaoui |
 | **Ce que couvre l'étape** | Campagnes et cycle de vie, publics, canaux, contenus, budget prévu |
 | **Dossier de code** | `code/campaign-service` |
-| **Code fourni** | Non : à écrire à partir de cette fiche |
 | **Prérequis** | A1 validée |
-| **État** | À faire |
+| **État** | Fait (Oussema Arfaoui) : testé |
 
 ## 1. Objectif
 
@@ -233,6 +232,7 @@ La colonne « Rôles » est le contrat : elle est **appliquée à l'étape E3** 
 - Le contrôle de `categorieClientId` auprès de Customer (créer un public) est **prévu pour plus tard** : il demandera une lecture de `GET /categories` de Customer et un 422 si la catégorie n'existe pas, 503 si Customer est indisponible. À décider à ce moment avec le trinôme ; l'étape A3 le fait de toute façon au lancement (`GET /clients/destinataires` répond 404 si la catégorie n'existe pas, transformé en 422).
 - `CampagneCanal` et `ContenuProduit` ont un identifiant **entier** interne qui n'apparaît jamais dans l'API.
 - Horloge injectable pour toutes les règles de date (`reprendre`, plus tard `lancer` et la tâche de fin).
+- Quand on ajoute ou retire un enfant (public, contenu, produit) dans une collection de la campagne, appeler `flush()` : sans cela, dans un test où tout se passe dans une seule transaction, l'enfant n'est pas retrouvable par son identifiant avant la fin de la transaction (en production chaque requête a sa transaction et le problème ne se voit pas).
 
 ## 9. Comment valider (à faire par le trinôme)
 

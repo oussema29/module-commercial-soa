@@ -57,6 +57,10 @@ Certaines listes courtes (contacts d'un client, catégories, taxes, canaux, publ
 - Un service qui en appelle un autre **retransmet l'identité** reçue. Les routes publiques ne font aucun appel synchrone : elles publient seulement un événement.
 - `auteurId` et `creePar` viennent du contexte utilisateur et ne sont jamais saisis dans un corps de requête.
 
+**Obtenir un jeton.** Aujourd'hui, par le service de login **provisoire** (`auth.yaml`, `POST /login`, quatre utilisateurs fictifs) ; plus tard, par le service Authentication de l'autre trinôme. Les trois services du module ne dépendent d'aucun des deux : ils vérifient seulement le jeton.
+
+**Contenu du JWT (hypothèse retenue, à confirmer avec le service Authentication).** Signature HS256 avec un secret partagé ; le **rôle** est dans le champ `role` (le nom du champ se règle par `app.security.role-claim`) ; l'**identifiant de l'utilisateur** est le champ `sub`, un UUID. Sans jeton valide : 401 ; rôle non autorisé : 403, avec le corps d'erreur de la section 2. Les droits sont vérifiés avant la validation du corps de la requête : un rôle non autorisé reçoit toujours 403. Mode `app.security.mode=none` (défaut en développement) : aucune authentification.
+
 ## 5. Règles d'intégration entre services
 
 | Lien | Règle |
@@ -86,5 +90,5 @@ Ces choix ne figuraient pas dans la conception initiale ; ils sont tranchés ici
 
 ## 7. Ce qu'il reste à préciser
 
-- Noms de rôles (`x-roles`) à confronter avec le service Authentication d'un autre trinôme.
+- Noms de rôles (`x-roles`) et contenu du JWT (champs `role` et `sub`, secret ou clé de signature) à confronter avec le service Authentication d'un autre trinôme.
 - Choix des noms d'échange et de files RabbitMQ à partager avec les autres trinômes qui voudraient consommer `DevisAccepte`.

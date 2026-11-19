@@ -6,9 +6,8 @@
 | **Responsable** | Baha Farhati |
 | **Ce que couvre l'étape** | Fiches clients et prospects (créer, modifier, rechercher, supprimer), email unique, statuts, catégories, liste de destinataires pour Campaign |
 | **Dossier de code** | `code/customer-service` |
-| **Code fourni** | `GUIDE_CODE_CUSTOMER.md (section 5)` : arborescence, code complet de chaque fichier, routes, tests |
 | **Prérequis** | B0 validée |
-| **État** | À faire |
+| **État** | À faire (Baha Farhati) |
 
 ## 1. Objectif
 

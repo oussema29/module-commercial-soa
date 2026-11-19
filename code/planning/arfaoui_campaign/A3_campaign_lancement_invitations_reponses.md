@@ -6,9 +6,8 @@
 | **Responsable** | Oussema Arfaoui |
 | **Ce que couvre l'étape** | Lancement, invitations par email, renvoi des échecs, réponses publiques ; lecture de Customer (lien I2) |
 | **Dossier de code** | `code/campaign-service` |
-| **Code fourni** | Non : à écrire à partir de cette fiche |
 | **Prérequis** | A2 validée. Customer est **simulé** pendant le développement ; l'essai réel se fait quand B1 est validée |
-| **État** | À faire |
+| **État** | Fait (Oussema Arfaoui) : testé |
 
 ## 1. Objectif
 

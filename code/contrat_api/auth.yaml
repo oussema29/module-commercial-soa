@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  title: Auth Service (PROVISOIRE)
+  version: 1.0.0
+  description: >-
+    Service de login provisoire du module commercial : il vérifie un email et un mot de passe et renvoie un JWT
+    (signature HS256, secret partagé avec Customer, Quotation et Campaign). Les utilisateurs sont fictifs (un par rôle).
+    Il sera remplacé par le service Authentication de l'autre trinôme ; les trois autres services ne dépendent pas de lui,
+    ils vérifient seulement la signature du jeton. Le jeton contient « sub » (identifiant de l'utilisateur, UUID),
+    « role » (ADMIN, COMMERCIAL, MARKETING ou RESPONSABLE) et « exp » (fin de validité).
+servers:
+- url: http://localhost:8084
+paths:
+  /login:
+    post:
+      summary: Se connecter et obtenir un JWT
+      operationId: post__login
+      description: >-
+        Un email inconnu et un mauvais mot de passe donnent le même refus 401 « Identifiants invalides » (on ne révèle pas
+        si l'email existe). L'email est comparé sans tenir compte de la casse ni des espaces autour.
+      x-roles:
+      - PUBLIC
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginReponse'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '422':
+          $ref: '#/components/responses/E422'
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        motDePasse:
+          type: string
+      required:
+      - email
+      - motDePasse
+      example:
+        email: marketing@exemple.tn
+        motDePasse: marketing-demo-1
+    LoginReponse:
+      type: object
+      properties:
+        jeton:
+          type: string
+          description: "Le JWT, à envoyer ensuite dans l'en-tête « Authorization: Bearer <jeton> »."
+        type:
+          type: string
+          example: Bearer
+        expireDans:
+          type: integer
+          description: Durée de validité du jeton, en secondes.
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - COMMERCIAL
+          - MARKETING
+          - RESPONSABLE
+        utilisateurId:
+          type: string
+          format: uuid
+      required:
+      - jeton
+      - type
+      - expireDans
+      - role
+      - utilisateurId
+      example:
+        jeton: eyJhbGciOiJIUzI1NiJ9...
+        type: Bearer
+        expireDans: 3600
+        role: MARKETING
+        utilisateurId: 00000000-0000-0000-0000-0000000000a3
+    Erreur:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - code
+      - message
+      - timestamp
+  responses:
+    E400:
+      description: Requête mal formée (JSON illisible)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E401:
+      description: Identifiants invalides
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E422:
+      description: Email ou mot de passe absent
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'

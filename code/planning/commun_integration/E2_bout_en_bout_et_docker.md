@@ -6,9 +6,8 @@
 | **Responsable** | Tout le trinôme |
 | **Ce que couvre l'étape** | Scénario complet campagne → prospect → devis → ROI, cas de panne, Docker |
 | **Dossier de code** | `code/ (les trois services)` |
-| **Code fourni** | Non : à écrire à partir de cette fiche |
 | **Prérequis** | E1 et A4 validées |
-| **État** | À faire |
+| **État** | Image Docker et service de Campaign faits ; ceux de Customer et de Quotation à faire ; assemblage et scénario à la fin |
 
 ## 1. Objectif
 
@@ -16,7 +15,7 @@ Prouver que la chaîne complète fonctionne : campagne → prospect → client �
 
 **Pas dans cette étape :**
 
-- Gateway et JWT (étape E3).
+- JWT (étape E3) et passerelle (étape E5).
 
 ## 2. Modèle de données
 
@@ -45,10 +44,10 @@ Aucune route dans cette étape.
 
 ## 6. Fichiers créés ou modifiés
 
-- `code/customer-service/Dockerfile, code/quotation-service/Dockerfile, code/campaign-service/Dockerfile`
-- `code/docker-compose.yml (services applicatifs)`
-- `code/scenarios/ (script de démonstration)`
-- `planning/scenarios.md`
+- `code/customer-service/Dockerfile, code/quotation-service/Dockerfile, code/campaign-service/Dockerfile (+ .dockerignore)`
+- `code/docker-compose.yml (profil `services` : les trois services, en plus de l'infrastructure)`
+- `code/scenarios/scenario_complet.py (scénario nominal, bibliothèque standard de Python)`
+- `planning/commun_integration/scenarios.md (scénarios joués et résultats)`
 - `code/README.md`
 
 ## 7. Tests à écrire
@@ -63,6 +62,8 @@ Aucune route dans cette étape.
 - Dans un conteneur, `localhost` n'est plus la machine : ne laisser aucune adresse codée en dur.
 - Garder le port 3306 libre : MySQL de la machine peut l'occuper ; les bases du compose utilisent 3307 à 3309.
 - Ne jamais mettre de vrais mots de passe dans le compose : identifiants de développement uniquement.
+- Le premier `docker compose --profile services up -d --build` dure environ 6 minutes (images de base et dépendances Maven téléchargées) ; les suivants réutilisent le cache.
+- `docker compose up -d` (sans profil) ne démarre que l'infrastructure : c'est ce qu'il faut pour lancer les services sur le poste avec `mvn spring-boot:run`.
 
 ## 9. Comment valider (à faire par le trinôme)
 

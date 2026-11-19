@@ -14,6 +14,10 @@ Deux événements, un par flux asynchrone du module. Un événement **contient t
 | Messages | JSON UTF-8, persistants (`delivery_mode = 2`), accusé de réception **manuel** après le traitement |
 | Autre module | Une autre équipe peut consommer `DevisAccepte` en créant **sa propre file** liée à `devis.accepte`, sans rien changer chez nous |
 
+**Déclaration des files.** Les déclarations RabbitMQ sont idempotentes : **chaque service déclare l'échange et la file de son destinataire**, avec exactement les mêmes arguments (durable, échange des messages en échec `module-commercial.dlx`, clé `<file>.dlq`). Ainsi un événement publié avant le premier démarrage du destinataire attend dans la file au lieu d'être perdu. Un message que le consommateur ne peut pas traiter est refusé sans remise en file et part dans la file `<file>.dlq`.
+
+**Si RabbitMQ est arrêté au moment de publier.** La donnée métier reste enregistrée (la réponse du visiteur, l'acceptation du devis) ; l'événement est écrit en entier, en JSON, dans les logs du service (niveau ERROR, « ÉVÉNEMENT NON PUBLIÉ ») pour être republié à la main depuis la console de RabbitMQ. Il n'y a pas de table « outbox » : limite assumée.
+
 ## Enveloppe commune
 
 Tout événement a ces champs en plus de ses données :

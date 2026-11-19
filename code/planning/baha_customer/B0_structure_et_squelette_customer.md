@@ -6,9 +6,8 @@
 | **Responsable** | Baha Farhati (le `docker-compose.yml` est partagé par tout le trinôme) |
 | **Ce que couvre l'étape** | Base technique : dossier de code, bases de données, structure d'un service |
 | **Dossier de code** | `code/customer-service` |
-| **Code fourni** | Non : à écrire à partir de cette fiche |
 | **Prérequis** | Java 21 ou plus, Maven 3, Docker |
-| **État** | Fait ; en attente de validation du trinôme |
+| **État** | Fait |
 
 ## 1. Objectif
 

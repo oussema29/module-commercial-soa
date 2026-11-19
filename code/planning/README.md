@@ -17,7 +17,7 @@ Un module commercial pour une société d'ingénierie, fait de **trois services 
 | **Baha Farhati** | Customer | `customer-service/` | 8081 | `customer_db` (3307) | 1.1 Fiches clients · 1.2 Contacts · 1.3 Interactions | B0, B1, B2 |
 | **Oussema Souidi** | Quotation | `quotation-service/` | 8082 | `quotation_db` (3308) | 2.1 Devis · 2.2 Catalogue · 2.3 Calcul · 2.4 Documents et envoi | S1, S2, S3 |
 | **Oussema Arfaoui** | Campaign | `campaign-service/` | 8083 | `campaign_db` (3309) | 3.1 Campagnes · 3.2 Ciblage et canaux · 3.3 Contenus · 3.4 Performance et budget | A1, A2, A3, A4 |
-| **Tout le trinôme** | Intégration | les trois services | – | – | Événements, bout en bout, Docker, sécurité | E1, E2, E3 |
+| **Tout le trinôme** | Intégration | les trois services | – | – | Événements, bout en bout, Docker, sécurité, login provisoire, passerelle | E1, E2, E3, E4, E5 |
 
 Les fiches de chaque membre sont dans son sous-dossier de `planning/` : `baha_customer/`, `souidi_quotation/`, `arfaoui_campaign/`, `commun_integration/`.
 
@@ -38,7 +38,7 @@ Phase 1 : chacun dans son service, en parallèle
    Arfaoui  :  A1 → A2 → A3 → A4       (Customer simulé)
 
 Phase 2 : intégration, ensemble
-   E1  événements RabbitMQ  →  E2  scénario de bout en bout et Docker  →  E3  JWT et rôles
+   E1  événements RabbitMQ  →  E2  scénario de bout en bout et Docker  →  E3  JWT et rôles  →  E4  service de login provisoire  →  E5  passerelle
 ```
 
 ## 5. Les points d'intégration
@@ -51,20 +51,11 @@ C'est là que les trois parties se rejoignent. Chaque lien (I1 à I4) est décri
 | I2 : Campaign lit les destinataires (`GET /clients/destinataires`) | Baha (B1) | Arfaoui (A3) | `customer.yaml` | Faux Customer |
 | I3 : événement `ProspectGenere` | Arfaoui publie (A3) | Baha reçoit (E1) | `evenements.md` | L'envoi écrit seulement dans les logs |
 | I4 : événement `DevisAccepte` | Souidi publie (S3) | Arfaoui reçoit (E1) | `evenements.md` | L'envoi écrit seulement dans les logs |
-| Authentification (JWT) | Autre trinôme | Les trois services (E3) | `contrat_commun.md` | Aucune, en attendant |
+| Authentification (JWT) | Autre trinôme (en attendant : service de login provisoire E4) | Les trois services (E3) | `contrat_commun.md`, `auth.yaml` | Jetons émis par le service provisoire |
 
 ## 6. Contenu d'une fiche
 
 Une fiche contient : l'objectif et ce qui n'en fait pas partie ; le modèle de données ; les routes, rôles et objets échangés (extraits des fichiers OpenAPI) ; les règles métier ; les tâches à cocher, dans l'ordre ; les fichiers créés ; les tests à écrire ; les points d'attention ; comment valider ; le message de commit.
-
-## 6 bis. Guides de code (Customer et Quotation)
-
-Pour les étapes B1, B2, S1, S2 et S3, un **guide de code** donne tout ce qu'il faut pour réaliser l'étape sans avoir à réfléchir : l'arborescence, le code complet de chaque fichier (à créer au chemin indiqué), les routes avec leurs corps de requête et de réponse, le flux et les commandes de vérification. Ce code a été compilé et testé.
-
-| Guide | Pour | Étapes |
-|---|---|---|
-| [`baha_customer/GUIDE_CODE_CUSTOMER.md`](baha_customer/GUIDE_CODE_CUSTOMER.md) | Baha Farhati (Customer) | B1, B2 |
-| [`souidi_quotation/GUIDE_CODE_QUOTATION.md`](souidi_quotation/GUIDE_CODE_QUOTATION.md) | Oussema Souidi (Quotation) | S1, S2, S3 |
 
 ## 7. Validation et livraison
 
@@ -80,16 +71,36 @@ Jamais de mot de passe réel, de fichier `.env` ni de `target/` dans git. Les id
 
 | Étape | Fiche | Responsable | État |
 |---|---|---|---|
-| B0 | [Structure du code et squelette Customer](baha_customer/B0_structure_et_squelette_customer.md) | Baha Farhati | Fait, en attente de validation |
+| B0 | [Structure du code et squelette Customer](baha_customer/B0_structure_et_squelette_customer.md) | Baha Farhati | Fait |
 | B1 | [Customer : catégories et clients](baha_customer/B1_customer_categories_et_clients.md) | Baha Farhati | À faire |
 | B2 | [Customer : contacts et interactions](baha_customer/B2_customer_contacts_et_interactions.md) | Baha Farhati | À faire |
 | S1 | [Quotation : squelette, catalogue et taxes](souidi_quotation/S1_quotation_squelette_catalogue_taxes.md) | Oussema Souidi | À faire |
 | S2 | [Quotation : devis, lignes et calcul](souidi_quotation/S2_quotation_devis_et_calcul.md) | Oussema Souidi | À faire |
 | S3 | [Quotation : PDF, envoi, réponse publique et expiration](souidi_quotation/S3_quotation_envoi_pdf_reponse_publique.md) | Oussema Souidi | À faire |
-| A1 | [Campaign : squelette du service](arfaoui_campaign/A1_squelette_campaign.md) | Oussema Arfaoui | À faire |
-| A2 | [Campaign : campagnes, publics, canaux, contenus et budget](arfaoui_campaign/A2_campaign_campagnes_publics_canaux_contenus_budget.md) | Oussema Arfaoui | À faire |
-| A3 | [Campaign : lancement, invitations et réponses publiques](arfaoui_campaign/A3_campaign_lancement_invitations_reponses.md) | Oussema Arfaoui | À faire |
-| A4 | [Campaign : mesures, performance, ROI, rapport et fin planifiée](arfaoui_campaign/A4_campaign_performance_roi_taches.md) | Oussema Arfaoui | À faire |
-| E1 | [Événements RabbitMQ : ProspectGenere et DevisAccepte](commun_integration/E1_evenements_rabbitmq.md) | Tout le trinôme | À faire |
-| E2 | [Scénario de bout en bout et Docker des services](commun_integration/E2_bout_en_bout_et_docker.md) | Tout le trinôme | À faire |
-| E3 | [Authentification JWT et contrôle des rôles](commun_integration/E3_jwt_et_roles.md) | Tout le trinôme | À faire |
+| A1 | [Campaign : squelette du service](arfaoui_campaign/A1_squelette_campaign.md) | Oussema Arfaoui | Fait |
+| A2 | [Campaign : campagnes, publics, canaux, contenus et budget](arfaoui_campaign/A2_campaign_campagnes_publics_canaux_contenus_budget.md) | Oussema Arfaoui | Fait |
+| A3 | [Campaign : lancement, invitations et réponses publiques](arfaoui_campaign/A3_campaign_lancement_invitations_reponses.md) | Oussema Arfaoui | Fait |
+| A4 | [Campaign : mesures, performance, ROI, rapport et fin planifiée](arfaoui_campaign/A4_campaign_performance_roi_taches.md) | Oussema Arfaoui | Fait |
+| E1 | [Événements RabbitMQ : ProspectGenere et DevisAccepte](commun_integration/E1_evenements_rabbitmq.md) | Tout le trinôme | En cours |
+| E2 | [Scénario de bout en bout et Docker des services](commun_integration/E2_bout_en_bout_et_docker.md) | Tout le trinôme | En cours |
+| E3 | [Authentification JWT et contrôle des rôles](commun_integration/E3_jwt_et_roles.md) | Tout le trinôme | En cours |
+| E4 | [Service de login provisoire (utilisateurs fictifs et émission de JWT)](commun_integration/E4_service_login_provisoire.md) | Tout le trinôme | Fait |
+| E5 | [Passerelle (API Gateway) : un seul point d'entrée](commun_integration/E5_passerelle.md) | Tout le trinôme | En cours |
+
+## 9. Avancement par personne
+
+Chacun fait **toute sa part** (le service, ses événements, sa sécurité, son image Docker) sans attendre les autres ; l'intégration vient en dernier.
+
+| | Oussema Arfaoui (Campaign) | Baha Farhati (Customer) | Oussema Souidi (Quotation) |
+|---|---|---|---|
+| Le service | **Fait**, testé (étapes A1 à A4) | Squelette fait (B0) ; **à faire** : B1, B2 | **À faire** : S1 à S3 |
+| Événements RabbitMQ (E1) | **Fait**, testé | À faire | À faire |
+| Sécurité JWT et rôles (E3) | **Fait**, testé | À faire | À faire |
+| Image Docker et service dans `docker-compose.yml` (E2) | **Fait**, testé | À faire | À faire |
+
+| Commun au trinôme | État |
+|---|---|
+| Service de login provisoire (E4) | **Fait**, testé |
+| Passerelle, code (E5) | **Fait**, testé |
+| Assemblage : service de la passerelle dans `docker-compose.yml` et scénario de bout en bout | **À faire en dernier**, quand les trois services existent |
+
