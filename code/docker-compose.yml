@@ -1,0 +1,44 @@
+# Infrastructure de développement du module commercial.
+# Les services Java tournent sur le poste (mvn spring-boot:run) ; seuls les MySQL et RabbitMQ sont en conteneurs.
+# Identifiants de développement uniquement (données fictives).
+services:
+  customer-db:
+    image: mysql:8.0
+    container_name: customer-db
+    environment:
+      MYSQL_ROOT_PASSWORD: soa
+      MYSQL_DATABASE: customer_db
+    ports: ["3307:3306"]
+    volumes: [customer-data:/var/lib/mysql]
+    healthcheck: { test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psoa"], interval: 5s, retries: 20 }
+
+  quotation-db:
+    image: mysql:8.0
+    container_name: quotation-db
+    environment:
+      MYSQL_ROOT_PASSWORD: soa
+      MYSQL_DATABASE: quotation_db
+    ports: ["3308:3306"]
+    volumes: [quotation-data:/var/lib/mysql]
+    healthcheck: { test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psoa"], interval: 5s, retries: 20 }
+
+  campaign-db:
+    image: mysql:8.0
+    container_name: campaign-db
+    environment:
+      MYSQL_ROOT_PASSWORD: soa
+      MYSQL_DATABASE: campaign_db
+    ports: ["3309:3306"]
+    volumes: [campaign-data:/var/lib/mysql]
+    healthcheck: { test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psoa"], interval: 5s, retries: 20 }
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports: ["5672:5672", "15672:15672"]   # 15672 : console web (guest / guest)
+    healthcheck: { test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"], interval: 10s, retries: 10 }
+
+volumes:
+  customer-data:
+  quotation-data:
+  campaign-data:

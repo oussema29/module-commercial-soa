@@ -1,0 +1,952 @@
+openapi: 3.0.3
+info:
+  title: Customer Service
+  version: 1.0.0
+  description: Référentiel des clients et prospects (module commercial, Groupe B). Le rôle autorisé de chaque route
+    est dans `x-roles`.
+servers:
+- url: http://localhost:8081
+paths:
+  /clients:
+    post:
+      summary: Créer un client ou un prospect
+      operationId: post__clients
+      description: 409 si l'email existe déjà.
+      x-roles: &id005
+      - ADMIN
+      - COMMERCIAL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientCreation'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+    get:
+      summary: Lister et rechercher les clients
+      operationId: get__clients
+      description: Réservé aux rôles qui lisent les fiches. Campaign utilise /clients/destinataires, pas cette route.
+      x-roles: &id004
+      - ADMIN
+      - COMMERCIAL
+      - RESPONSABLE
+      parameters:
+      - &id001
+        name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      - &id002
+        name: taille
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: type
+        in: query
+        schema:
+          type: string
+          enum:
+          - PARTICULIER
+          - ENTREPRISE
+      - name: statut
+        in: query
+        schema:
+          type: string
+          enum:
+          - PROSPECT
+          - CLIENT
+          - INACTIF
+      - name: categorieId
+        in: query
+        schema: &id003
+          type: string
+          format: uuid
+      - name: q
+        in: query
+        schema:
+          type: string
+        description: Recherche sur nom, prénom, email
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contenu:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Client'
+                  page:
+                    type: integer
+                  taille:
+                    type: integer
+                  total:
+                    type: integer
+                required:
+                - contenu
+                - page
+                - taille
+                - total
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /clients/destinataires:
+    get:
+      summary: Liste réduite des clients d'une catégorie (pour Campaign)
+      operationId: get__clients_destinataires
+      description: Clients de statut CLIENT de la catégorie. Ne donne aucune autre donnée de la fiche. 404 si la
+        catégorie n'existe pas ; une catégorie existante sans client renvoie une liste vide.
+      x-roles: &id006
+      - ADMIN
+      - COMMERCIAL
+      - MARKETING
+      - RESPONSABLE
+      parameters:
+      - *id001
+      - *id002
+      - name: categorieId
+        in: query
+        required: true
+        schema: *id003
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contenu:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Destinataire'
+                  page:
+                    type: integer
+                  taille:
+                    type: integer
+                  total:
+                    type: integer
+                required:
+                - contenu
+                - page
+                - taille
+                - total
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /clients/{id}:
+    get:
+      summary: Consulter une fiche
+      operationId: get__clients_id
+      description: Utilisée par Quotation avant de créer un devis (statut INACTIF visible dans la réponse).
+      x-roles: *id004
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    put:
+      summary: Modifier une fiche (sans le statut)
+      operationId: put__clients_id
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientModification'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+    delete:
+      summary: 'Supprimer un client (en usage normal : passer en INACTIF)'
+      operationId: delete__clients_id
+      x-roles:
+      - ADMIN
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      responses:
+        '204':
+          description: Succès, sans contenu
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /clients/{id}/statut:
+    patch:
+      summary: Changer le statut (décision du commercial)
+      operationId: patch__clients_id_statut
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangementStatut'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /clients/{id}/contacts:
+    get:
+      summary: Lister les contacts d'un client
+      operationId: get__clients_id_contacts
+      x-roles: *id004
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    post:
+      summary: Ajouter un contact
+      operationId: post__clients_id_contacts
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactSaisie'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /contacts/{id}:
+    put:
+      summary: Modifier un contact
+      operationId: put__contacts_id
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactSaisie'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+    delete:
+      summary: Supprimer un contact
+      operationId: delete__contacts_id
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      responses:
+        '204':
+          description: Succès, sans contenu
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /clients/{id}/interactions:
+    get:
+      summary: Lister les interactions d'un client
+      operationId: get__clients_id_interactions
+      x-roles: *id004
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Interaction'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    post:
+      summary: Enregistrer une interaction
+      operationId: post__clients_id_interactions
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InteractionSaisie'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interaction'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /interactions/{id}:
+    put:
+      summary: Modifier une interaction
+      operationId: put__interactions_id
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InteractionSaisie'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interaction'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+    delete:
+      summary: Supprimer une interaction
+      operationId: delete__interactions_id
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      responses:
+        '204':
+          description: Succès, sans contenu
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /categories:
+    get:
+      summary: Lister les catégories
+      operationId: get__categories
+      x-roles: *id006
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Categorie'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    post:
+      summary: Créer une catégorie
+      operationId: post__categories
+      x-roles:
+      - ADMIN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategorieSaisie'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categorie'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /categories/{id}:
+    put:
+      summary: Modifier une catégorie
+      operationId: put__categories_id
+      x-roles:
+      - ADMIN
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategorieSaisie'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categorie'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+    delete:
+      summary: Supprimer une catégorie
+      operationId: delete__categories_id
+      description: 409 si des clients utilisent encore la catégorie.
+      x-roles:
+      - ADMIN
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+      responses:
+        '204':
+          description: Succès, sans contenu
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+components:
+  schemas:
+    Erreur:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: Client not found
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - code
+      - message
+      - timestamp
+    Montant:
+      type: number
+      example: 1250.5
+      description: 'Décimal en dinars, trois décimales au plus. Côté Java : BigDecimal, jamais double.'
+    Client:
+      type: object
+      properties:
+        id: *id003
+        type:
+          type: string
+          enum:
+          - PARTICULIER
+          - ENTREPRISE
+        statut:
+          type: string
+          enum:
+          - PROSPECT
+          - CLIENT
+          - INACTIF
+        nom:
+          type: string
+        prenom:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+          description: Obligatoire, unique, comparé sans majuscules ni espaces
+        telephone:
+          type: string
+          nullable: true
+        adresse:
+          type: string
+          nullable: true
+        categorieId:
+          type: string
+          format: uuid
+          nullable: true
+        campagneSourceId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Campagne d'arrivée, fixée à la création
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - statut
+      - nom
+      - email
+      example:
+        id: 9a2f7c31-84b6-4d10-b3e5-6c8a1d0e9f52
+        type: ENTREPRISE
+        statut: PROSPECT
+        nom: Société Atlas
+        prenom: null
+        email: contact@atlas.tn
+        telephone: +216 71 123 456
+        adresse: 12 rue de la Liberté, Tunis
+        categorieId: null
+        campagneSourceId: b3d9a2f1-5c47-4e88-8f0a-1a2b3c4d5e6f
+        createdAt: '2026-11-18T14:30:00Z'
+        updatedAt: '2026-11-18T14:30:00Z'
+    ClientCreation:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - PARTICULIER
+          - ENTREPRISE
+        statut:
+          type: string
+          enum:
+          - PROSPECT
+          - CLIENT
+          default: PROSPECT
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+          format: email
+        telephone:
+          type: string
+        adresse:
+          type: string
+        categorieId: *id003
+      required:
+      - type
+      - nom
+      - email
+      example:
+        type: ENTREPRISE
+        nom: Société Atlas
+        email: contact@atlas.tn
+        telephone: +216 71 123 456
+        adresse: 12 rue de la Liberté, Tunis
+    ClientModification:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - PARTICULIER
+          - ENTREPRISE
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+          format: email
+        telephone:
+          type: string
+        adresse:
+          type: string
+        categorieId: *id003
+      required:
+      - type
+      - nom
+      - email
+      description: 'Le statut ne se change pas ici : voir PATCH /clients/{id}/statut. campagneSourceId ne change
+        jamais.'
+    ChangementStatut:
+      type: object
+      properties:
+        statut:
+          type: string
+          enum:
+          - PROSPECT
+          - CLIENT
+          - INACTIF
+      required:
+      - statut
+      example:
+        statut: CLIENT
+    Destinataire:
+      type: object
+      properties:
+        clientId: *id003
+        nom:
+          type: string
+          description: Nom complet à afficher
+        email:
+          type: string
+          format: email
+      required:
+      - clientId
+      - nom
+      - email
+      example:
+        clientId: 9a2f7c31-84b6-4d10-b3e5-6c8a1d0e9f52
+        nom: Société Atlas
+        email: contact@atlas.tn
+    Contact:
+      type: object
+      properties:
+        id: *id003
+        clientId: *id003
+        nom:
+          type: string
+        prenom:
+          type: string
+        fonction:
+          type: string
+        email:
+          type: string
+          format: email
+        telephone:
+          type: string
+      required:
+      - id
+      - clientId
+      - nom
+    ContactSaisie:
+      type: object
+      properties:
+        nom:
+          type: string
+        prenom:
+          type: string
+        fonction:
+          type: string
+        email:
+          type: string
+          format: email
+        telephone:
+          type: string
+      required:
+      - nom
+    Interaction:
+      type: object
+      properties:
+        id: *id003
+        clientId: *id003
+        type:
+          type: string
+          enum:
+          - APPEL
+          - EMAIL
+          - REUNION
+        date:
+          type: string
+          format: date-time
+        description:
+          type: string
+        auteurId:
+          type: string
+          format: uuid
+          description: Pris dans le contexte utilisateur, jamais saisi
+      required:
+      - id
+      - clientId
+      - type
+      - date
+    InteractionSaisie:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - APPEL
+          - EMAIL
+          - REUNION
+        date:
+          type: string
+          format: date-time
+        description:
+          type: string
+      required:
+      - type
+      - date
+      example:
+        type: APPEL
+        date: '2026-11-18T10:00:00Z'
+        description: Premier appel, intéressé par une offre
+    Categorie:
+      type: object
+      properties:
+        id: *id003
+        nom:
+          type: string
+        description:
+          type: string
+      required:
+      - id
+      - nom
+    CategorieSaisie:
+      type: object
+      properties:
+        nom:
+          type: string
+        description:
+          type: string
+      required:
+      - nom
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Branché en dernier. En développement, le composant « contexte utilisateur » fournit un utilisateur
+        et un rôle par défaut.
+  responses:
+    E400:
+      description: Requête mal formée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E401:
+      description: Non authentifié
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E403:
+      description: Rôle non autorisé
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E404:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E409:
+      description: État incompatible avec l'action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E422:
+      description: Donnée invalide ou règle métier non respectée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E503:
+      description: Service dépendant indisponible
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+security:
+- bearerAuth: []
+x-evenement-consomme:
+  ProspectGenere: 'Voir evenements.md : crée une fiche PROSPECT (sans doublon d''email), idempotent par eventId.'

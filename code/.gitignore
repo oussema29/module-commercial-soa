@@ -1,0 +1,8 @@
+target/
+*.class
+.idea/
+*.iml
+.vscode/
+__pycache__/
+# Outil local de génération des contrats (les .yaml font foi)
+/contrat_api/generer_contrat.py

@@ -1,0 +1,1502 @@
+openapi: 3.0.3
+info:
+  title: Campaign Service
+  version: 1.0.0
+  description: Campagnes, ciblage, contenus et performance (module commercial, Groupe B). Le rôle autorisé de chaque
+    route est dans `x-roles`.
+servers:
+- url: http://localhost:8083
+paths:
+  /campagnes:
+    post:
+      summary: Créer une campagne (BROUILLON)
+      operationId: post__campagnes
+      description: Crée aussi sa ligne de performance (budget prévu vide).
+      x-roles: &id001
+      - MARKETING
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampagneSaisie'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campagne'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+    get:
+      summary: Lister les campagnes
+      operationId: get__campagnes
+      description: Le commercial s'en sert pour choisir le campagneId d'un devis.
+      x-roles:
+      - COMMERCIAL
+      - MARKETING
+      - RESPONSABLE
+      parameters:
+      - &id003
+        name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      - &id004
+        name: taille
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contenu:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Campagne'
+                  page:
+                    type: integer
+                  taille:
+                    type: integer
+                  total:
+                    type: integer
+                required:
+                - contenu
+                - page
+                - taille
+                - total
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /campagnes/{id}:
+    get:
+      summary: Consulter une campagne
+      operationId: get__campagnes_id
+      x-roles:
+      - COMMERCIAL
+      - MARKETING
+      - RESPONSABLE
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: &id002
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campagne'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    put:
+      summary: Modifier une campagne
+      operationId: put__campagnes_id
+      description: Seulement en BROUILLON (409 sinon). Les contenus restent modifiables à tout moment.
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampagneSaisie'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campagne'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+    delete:
+      summary: Supprimer une campagne BROUILLON
+      operationId: delete__campagnes_id
+      description: 409 si elle a déjà été lancée. Supprime aussi performance, publics, canaux associés et contenus.
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '204':
+          description: Succès, sans contenu
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+  /campagnes/{id}/lancer:
+    post:
+      summary: Lancer la campagne
+      operationId: post__campagnes_id_lancer
+      description: 'Exige canal, contenu, budget prévu défini (0 accepté), canal cohérent avec chaque public, dateDebut
+        atteinte et dateFin non dépassée (409 sinon, 422 pour canal/contenu/budget/cohérence). Customer n''est appelé
+        que s''il existe un public CLIENTS_EXISTANTS ; 404 de Customer (catégorie inconnue) devient 422 ; Customer
+        indisponible : 503, la campagne reste BROUILLON. Une liste vide est acceptée (0 envoi). Un envoi en échec
+        ne bloque pas le passage en ACTIVE.'
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultatEnvoi'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+        '503':
+          $ref: '#/components/responses/E503'
+  /campagnes/{id}/suspendre:
+    post:
+      summary: Suspendre (ACTIVE vers SUSPENDUE)
+      operationId: post__campagnes_id_suspendre
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campagne'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+  /campagnes/{id}/reprendre:
+    post:
+      summary: Reprendre (SUSPENDUE vers ACTIVE)
+      operationId: post__campagnes_id_reprendre
+      description: 409 si la campagne n'est pas SUSPENDUE ou si dateFin est dépassée.
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campagne'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+  /campagnes/{id}/arreter:
+    post:
+      summary: Terminer définitivement (vers TERMINEE)
+      operationId: post__campagnes_id_arreter
+      description: Depuis ACTIVE ou SUSPENDUE. Sans retour. Pour une pause, utiliser suspendre.
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campagne'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+  /campagnes/{id}/invitations:
+    get:
+      summary: Lister les invitations
+      operationId: get__campagnes_id_invitations
+      x-roles: &id005
+      - MARKETING
+      - RESPONSABLE
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      - *id003
+      - *id004
+      - name: envoi
+        in: query
+        schema:
+          type: string
+          enum:
+          - ECHEC
+          - REUSSI
+        description: 'ECHEC : celles qui n''ont pas pu partir, avec la cause'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contenu:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Invitation'
+                  page:
+                    type: integer
+                  taille:
+                    type: integer
+                  total:
+                    type: integer
+                required:
+                - contenu
+                - page
+                - taille
+                - total
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /campagnes/{id}/invitations/renvoyer:
+    post:
+      summary: Renvoyer les invitations en échec
+      operationId: post__campagnes_id_invitations_renvoyer
+      description: Campagne ACTIVE obligatoire (409). Relit Customer ; un client INACTIF n'est plus renvoyé ; les
+        invitations déjà envoyées ne sont jamais renvoyées.
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultatEnvoi'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '503':
+          $ref: '#/components/responses/E503'
+  /campagnes/{id}/reponses:
+    get:
+      summary: Clients existants ayant répondu
+      operationId: get__campagnes_id_reponses
+      x-roles:
+      - COMMERCIAL
+      - MARKETING
+      - RESPONSABLE
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      - *id003
+      - *id004
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contenu:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReponseClient'
+                  page:
+                    type: integer
+                  taille:
+                    type: integer
+                  total:
+                    type: integer
+                required:
+                - contenu
+                - page
+                - taille
+                - total
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /campagnes/{id}/publics:
+    get:
+      summary: Lister les publics
+      operationId: get__campagnes_id_publics
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicCible'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    post:
+      summary: Définir un public
+      operationId: post__campagnes_id_publics
+      description: 'Campagne BROUILLON seulement (409 sinon). Un public ne se modifie pas : on le supprime et on
+        le recrée.'
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicCibleSaisie'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicCible'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+  /publics/{id}:
+    delete:
+      summary: Supprimer un public
+      operationId: delete__publics_id
+      description: Campagne BROUILLON seulement (409 sinon).
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '204':
+          description: Succès, sans contenu
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+  /canaux:
+    get:
+      summary: Lister les canaux
+      operationId: get__canaux
+      x-roles:
+      - ADMIN
+      - MARKETING
+      - RESPONSABLE
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Canal'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    post:
+      summary: Créer un canal
+      operationId: post__canaux
+      description: 'Un canal n''est ni modifié ni supprimé : des campagnes peuvent le référencer.'
+      x-roles:
+      - ADMIN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CanalSaisie'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Canal'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /campagnes/{id}/canaux:
+    post:
+      summary: Associer un canal
+      operationId: post__campagnes_id_canaux
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CanalAssociation'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Canal'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+  /campagnes/{id}/canaux/{canalId}:
+    delete:
+      summary: Retirer un canal
+      operationId: delete__campagnes_id_canaux_canalId
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      - name: canalId
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '204':
+          description: Succès, sans contenu
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+  /campagnes/{id}/contenus:
+    get:
+      summary: Lister les contenus
+      operationId: get__campagnes_id_contenus
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contenu'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    post:
+      summary: Ajouter un contenu
+      operationId: post__campagnes_id_contenus
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContenuSaisie'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contenu'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /contenus/{id}:
+    put:
+      summary: Modifier un contenu
+      operationId: put__contenus_id
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContenuSaisie'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contenu'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+    delete:
+      summary: Supprimer un contenu
+      operationId: delete__contenus_id
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '204':
+          description: Succès, sans contenu
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /contenus/{id}/produits:
+    post:
+      summary: Ajouter un produit mis en avant
+      operationId: post__contenus_id_produits
+      description: L'interface lit le catalogue de Quotation et envoie l'identifiant et le nom ; Campaign les copie.
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProduitMisEnAvant'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contenu'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /contenus/{id}/produits/{produitId}:
+    delete:
+      summary: Retirer un produit du contenu
+      operationId: delete__contenus_id_produits_produitId
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      - name: produitId
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '204':
+          description: Succès, sans contenu
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /campagnes/{id}/budget:
+    get:
+      summary: Consulter le budget
+      operationId: get__campagnes_id_budget
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    put:
+      summary: Définir le budget prévu
+      operationId: put__campagnes_id_budget
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetSaisie'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /campagnes/{id}/mesures:
+    put:
+      summary: Remplacer les mesures cumulées
+      operationId: put__campagnes_id_mesures
+      x-roles: *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MesuresSaisie'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Performance'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /campagnes/{id}/performance:
+    get:
+      summary: Consulter la performance
+      operationId: get__campagnes_id_performance
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Performance'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /campagnes/{id}/rapport:
+    get:
+      summary: Rapport de performance (PDF)
+      operationId: get__campagnes_id_rapport
+      x-roles: *id005
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Fichier PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /public/campagnes/{id}:
+    get:
+      summary: Page publique de la campagne
+      operationId: get__public_campagnes_id
+      description: 409 « La campagne n'est plus active » si elle n'est pas ACTIVE.
+      security: []
+      x-roles:
+      - PUBLIC
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampagnePublique'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+  /public/campagnes/{id}/reponse:
+    post:
+      summary: Formulaire d'un nouveau contact
+      operationId: post__public_campagnes_id_reponse
+      description: Incrémente prospectsGeneres et publie ProspectGenere. 409 « La campagne n'est plus active ».
+        422 si l'email est invalide.
+      security: []
+      x-roles:
+      - PUBLIC
+      x-evenement-publie: ProspectGenere
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormulaireProspect'
+      responses:
+        '201':
+          description: Succès
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+  /public/invitations/{jeton}/reponse:
+    post:
+      summary: Un client existant répond « Je suis intéressé »
+      operationId: post__public_invitations_jeton_reponse
+      description: Compté une seule fois. 409 si le client a déjà répondu (message « Vous avez déjà répondu ») ou
+        si la campagne n'est plus ACTIVE (« La campagne n'est plus active »).
+      security: []
+      x-roles:
+      - PUBLIC
+      parameters:
+      - name: jeton
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Succès
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+components:
+  schemas:
+    Erreur:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: Client not found
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - code
+      - message
+      - timestamp
+    Montant:
+      type: number
+      example: 1250.5
+      description: 'Décimal en dinars, trois décimales au plus. Côté Java : BigDecimal, jamais double.'
+    Campagne:
+      type: object
+      properties:
+        id: *id002
+        nom:
+          type: string
+        objectif:
+          type: string
+          enum:
+          - ACQUISITION
+          - FIDELISATION
+          - VENTES
+        dateDebut:
+          type: string
+          format: date
+        dateFin:
+          type: string
+          format: date
+        statut:
+          type: string
+          enum:
+          - BROUILLON
+          - ACTIVE
+          - SUSPENDUE
+          - TERMINEE
+        creePar: *id002
+      required:
+      - id
+      - nom
+      - objectif
+      - dateDebut
+      - dateFin
+      - statut
+    CampagneSaisie:
+      type: object
+      properties:
+        nom:
+          type: string
+        objectif:
+          type: string
+          enum:
+          - ACQUISITION
+          - FIDELISATION
+          - VENTES
+        dateDebut:
+          type: string
+          format: date
+        dateFin:
+          type: string
+          format: date
+          description: Postérieure ou égale à dateDebut
+      required:
+      - nom
+      - objectif
+      - dateDebut
+      - dateFin
+      example:
+        nom: Offre VIP
+        objectif: VENTES
+        dateDebut: '2026-12-01'
+        dateFin: '2026-12-31'
+    PublicCible:
+      type: object
+      properties:
+        id: *id002
+        campagneId: *id002
+        type:
+          type: string
+          enum:
+          - CLIENTS_EXISTANTS
+          - PUBLIC_EXTERNE
+        categorieClientId:
+          type: string
+          format: uuid
+          nullable: true
+        ageMin:
+          type: integer
+          nullable: true
+        ageMax:
+          type: integer
+          nullable: true
+        localisation:
+          type: string
+          nullable: true
+        centresInteret:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+      required:
+      - id
+      - campagneId
+      - type
+    PublicCibleSaisie:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - CLIENTS_EXISTANTS
+          - PUBLIC_EXTERNE
+        categorieClientId: *id002
+        ageMin:
+          type: integer
+        ageMax:
+          type: integer
+        localisation:
+          type: string
+        centresInteret:
+          type: string
+        description:
+          type: string
+      required:
+      - type
+      description: 'CLIENTS_EXISTANTS : categorieClientId obligatoire, aucun critère de profil. PUBLIC_EXTERNE :
+        critères de profil, pas de categorieClientId. Sinon 422.'
+      example:
+        type: CLIENTS_EXISTANTS
+        categorieClientId: 3e2d1c0b-9a8f-4e7d-b6c5-a4b3c2d1e0f9
+        description: Clients VIP
+    Canal:
+      type: object
+      properties:
+        id: *id002
+        nom:
+          type: string
+          example: Facebook – page principale
+        type:
+          type: string
+          enum:
+          - FACEBOOK
+          - INSTAGRAM
+          - GOOGLE_ADS
+          - EMAIL
+      required:
+      - id
+      - nom
+      - type
+    CanalSaisie:
+      type: object
+      properties:
+        nom:
+          type: string
+        type:
+          type: string
+          enum:
+          - FACEBOOK
+          - INSTAGRAM
+          - GOOGLE_ADS
+          - EMAIL
+      required:
+      - nom
+      - type
+    CanalAssociation:
+      type: object
+      properties:
+        canalId: *id002
+      required:
+      - canalId
+      example:
+        canalId: 8f7e6d5c-4b3a-4291-a0f9-e8d7c6b5a493
+    ProduitMisEnAvant:
+      type: object
+      properties:
+        produitId: *id002
+        produitNom:
+          type: string
+          description: Copie du nom au moment de l'ajout
+      required:
+      - produitId
+      - produitNom
+    Contenu:
+      type: object
+      properties:
+        id: *id002
+        campagneId: *id002
+        titre:
+          type: string
+        texte:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+        videoUrl:
+          type: string
+          nullable: true
+          description: Un lien, jamais une pièce jointe
+        lien:
+          type: string
+          nullable: true
+        produits:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProduitMisEnAvant'
+      required:
+      - id
+      - campagneId
+      - titre
+    ContenuSaisie:
+      type: object
+      properties:
+        titre:
+          type: string
+        texte:
+          type: string
+        imageUrl:
+          type: string
+        videoUrl:
+          type: string
+        lien:
+          type: string
+      required:
+      - titre
+      example:
+        titre: Offre VIP -10 %
+        texte: Profitez de notre offre exclusive jusqu'au 31 décembre.
+        lien: https://exemple.tn/offre-vip
+    Budget:
+      type: object
+      properties:
+        montantPrevu:
+          $ref: '#/components/schemas/Montant'
+          nullable: true
+          description: Vide tant que non défini
+        montantDepense: &id006
+          $ref: '#/components/schemas/Montant'
+      required:
+      - montantDepense
+    BudgetSaisie:
+      type: object
+      properties:
+        montantPrevu:
+          $ref: '#/components/schemas/Montant'
+          description: 0 accepté
+      required:
+      - montantPrevu
+      example:
+        montantPrevu: 500.0
+    MesuresSaisie:
+      type: object
+      properties:
+        impressions:
+          type: integer
+          minimum: 0
+        clics:
+          type: integer
+          minimum: 0
+        montantDepense: *id006
+      required:
+      - impressions
+      - clics
+      - montantDepense
+      description: Remplace les totaux cumulés (idempotent). Seule route qui modifie le dépensé.
+      example:
+        impressions: 12000
+        clics: 340
+        montantDepense: 180.5
+    Performance:
+      type: object
+      properties:
+        campagneId: *id002
+        montantPrevu:
+          $ref: '#/components/schemas/Montant'
+          nullable: true
+        montantDepense: *id006
+        impressions:
+          type: integer
+        clics:
+          type: integer
+        prospectsGeneres:
+          type: integer
+          description: Formulaires publics reçus
+        clientsInteresses:
+          type: integer
+          description: 'Calculé : invitations répondues'
+        devisAcceptes:
+          type: integer
+        chiffreAffairesAttribue: *id006
+        cpc:
+          $ref: '#/components/schemas/Montant'
+          nullable: true
+          description: montantDepense / clics, calculé, vide si clics = 0
+        roi:
+          type: number
+          nullable: true
+          description: (CA − dépensé) / dépensé, calculé, vide si dépensé = 0
+      required:
+      - campagneId
+      - montantDepense
+      - devisAcceptes
+      - chiffreAffairesAttribue
+      example:
+        campagneId: b3d9a2f1-5c47-4e88-8f0a-1a2b3c4d5e6f
+        montantPrevu: 500.0
+        montantDepense: 180.5
+        impressions: 12000
+        clics: 340
+        prospectsGeneres: 25
+        clientsInteresses: 31
+        devisAcceptes: 2
+        chiffreAffairesAttribue: 8400.0
+        cpc: 0.531
+        roi: 45.5
+    Invitation:
+      type: object
+      properties:
+        id: *id002
+        clientId: *id002
+        envoyeLe:
+          type: string
+          format: date-time
+          nullable: true
+        erreurEnvoi:
+          type: string
+          nullable: true
+        repondueLe:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - clientId
+      description: Le jeton n'est jamais exposé (il n'est que dans l'email du client).
+    ReponseClient:
+      type: object
+      properties:
+        clientId: *id002
+        repondueLe:
+          type: string
+          format: date-time
+      required:
+      - clientId
+      - repondueLe
+      description: Les noms viennent de Customer via l'interface.
+    ResultatEnvoi:
+      type: object
+      properties:
+        envoisReussis:
+          type: integer
+        echecs:
+          type: array
+          items:
+            type: object
+            properties:
+              clientId: *id002
+              cause:
+                type: string
+            required:
+            - clientId
+            - cause
+      required:
+      - envoisReussis
+      - echecs
+      example:
+        envoisReussis: 48
+        echecs:
+        - clientId: 9a2f7c31-84b6-4d10-b3e5-6c8a1d0e9f52
+          cause: Adresse email invalide
+    CampagnePublique:
+      type: object
+      properties:
+        id: *id002
+        nom:
+          type: string
+        contenus:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contenu'
+      required:
+      - id
+      - nom
+      description: 'Page publique : contenu et formulaire.'
+    FormulaireProspect:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - PARTICULIER
+          - ENTREPRISE
+        nom:
+          type: string
+        nomContact:
+          type: string
+          description: Entreprise seulement
+        email:
+          type: string
+          format: email
+        telephone:
+          type: string
+      required:
+      - type
+      - nom
+      - email
+      example:
+        type: ENTREPRISE
+        nom: Société Atlas
+        nomContact: Karim Ben Salah
+        email: karim@atlas.tn
+        telephone: +216 20 123 456
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Branché en dernier. En développement, le composant « contexte utilisateur » fournit un utilisateur
+        et un rôle par défaut.
+  responses:
+    E400:
+      description: Requête mal formée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E401:
+      description: Non authentifié
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E403:
+      description: Rôle non autorisé
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E404:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E409:
+      description: État incompatible avec l'action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E422:
+      description: Donnée invalide ou règle métier non respectée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E503:
+      description: Service dépendant indisponible
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+security:
+- bearerAuth: []
+x-evenement-publie:
+  ProspectGenere: Voir evenements.md.
+x-evenement-consomme:
+  DevisAccepte: 'Voir evenements.md : met à jour devisAcceptes et chiffreAffairesAttribue, même si la campagne est
+    TERMINEE ; idempotent par eventId.'

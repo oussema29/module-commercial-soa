@@ -1,0 +1,1014 @@
+openapi: 3.0.3
+info:
+  title: Quotation Service
+  version: 1.0.0
+  description: Devis, catalogue et taxes (module commercial, Groupe B). Le rôle autorisé de chaque route est dans
+    `x-roles`. Les remises sont des pourcentages (0 à 100).
+servers:
+- url: http://localhost:8082
+paths:
+  /devis:
+    post:
+      summary: Créer un devis (BROUILLON)
+      operationId: post__devis
+      description: Lit Customer (I1) et copie nom et email du client.
+      x-roles: &id003
+      - COMMERCIAL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DevisCreation'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devis'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+        '503':
+          $ref: '#/components/responses/E503'
+    get:
+      summary: Lister les devis
+      operationId: get__devis
+      x-roles: &id002
+      - COMMERCIAL
+      - RESPONSABLE
+      parameters:
+      - &id004
+        name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      - &id005
+        name: taille
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: clientId
+        in: query
+        schema: &id001
+          type: string
+          format: uuid
+      - name: statut
+        in: query
+        schema:
+          type: string
+          enum: &id008
+          - BROUILLON
+          - ENVOYE
+          - ACCEPTE
+          - REFUSE
+          - EXPIRE
+          - ANNULE
+      - name: campagneId
+        in: query
+        schema: *id001
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contenu:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Devis'
+                  page:
+                    type: integer
+                  taille:
+                    type: integer
+                  total:
+                    type: integer
+                required:
+                - contenu
+                - page
+                - taille
+                - total
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /devis/{id}:
+    get:
+      summary: Consulter un devis
+      operationId: get__devis_id
+      x-roles: *id002
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devis'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    put:
+      summary: Modifier un devis
+      operationId: put__devis_id
+      x-roles: *id003
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DevisModification'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devis'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+  /devis/{id}/lignes:
+    post:
+      summary: Ajouter une ligne
+      operationId: post__devis_id_lignes
+      description: Copie désignation, prix et TVA du catalogue puis recalcule les totaux. Renvoie le devis complet.
+      x-roles: *id003
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LigneSaisie'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devis'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+  /devis/{id}/lignes/{ligneId}:
+    put:
+      summary: Modifier une ligne
+      operationId: put__devis_id_lignes_ligneId
+      x-roles: *id003
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: ligneId
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LigneModification'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devis'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+    delete:
+      summary: Supprimer une ligne
+      operationId: delete__devis_id_lignes_ligneId
+      x-roles: *id003
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: ligneId
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devis'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+  /devis/{id}/envoyer:
+    post:
+      summary: Générer le PDF et envoyer l'email au client
+      operationId: post__devis_id_envoyer
+      description: 409 si le devis n'est pas BROUILLON. 422 si l'email est invalide ou si dateValidite est déjà
+        passée. 503 avec la cause si l'envoi échoue (le devis reste BROUILLON).
+      x-roles: *id003
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devis'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '422':
+          $ref: '#/components/responses/E422'
+        '503':
+          $ref: '#/components/responses/E503'
+  /devis/{id}/annuler:
+    post:
+      summary: Annuler un devis (BROUILLON ou ENVOYE)
+      operationId: post__devis_id_annuler
+      x-roles: *id003
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devis'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+  /devis/{id}/pdf:
+    get:
+      summary: Télécharger le PDF
+      operationId: get__devis_id_pdf
+      x-roles: *id002
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Fichier PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /produits:
+    get:
+      summary: Lister les produits
+      operationId: get__produits
+      x-roles: &id006
+      - ADMIN
+      - COMMERCIAL
+      - MARKETING
+      - RESPONSABLE
+      parameters:
+      - *id004
+      - *id005
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contenu:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Produit'
+                  page:
+                    type: integer
+                  taille:
+                    type: integer
+                  total:
+                    type: integer
+                required:
+                - contenu
+                - page
+                - taille
+                - total
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    post:
+      summary: Créer un produit
+      operationId: post__produits
+      x-roles:
+      - ADMIN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProduitSaisie'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produit'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /produits/{id}:
+    get:
+      summary: Consulter un produit
+      operationId: get__produits_id
+      x-roles: *id006
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produit'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    put:
+      summary: Modifier un produit
+      operationId: put__produits_id
+      x-roles:
+      - ADMIN
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProduitSaisie'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produit'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+    delete:
+      summary: Supprimer un produit
+      operationId: delete__produits_id
+      description: 'Sans effet sur les devis existants : ils gardent leur copie.'
+      x-roles:
+      - ADMIN
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '204':
+          description: Succès, sans contenu
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+  /taxes:
+    get:
+      summary: Lister les taxes
+      operationId: get__taxes
+      x-roles:
+      - ADMIN
+      - COMMERCIAL
+      - RESPONSABLE
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Taxe'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+    post:
+      summary: Créer une taxe
+      operationId: post__taxes
+      x-roles:
+      - ADMIN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxeSaisie'
+      responses:
+        '201':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Taxe'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /taxes/{id}:
+    put:
+      summary: Modifier une taxe
+      operationId: put__taxes_id
+      x-roles:
+      - ADMIN
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxeSaisie'
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Taxe'
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '422':
+          $ref: '#/components/responses/E422'
+  /public/reponse/{token}:
+    get:
+      summary: Le client consulte son devis
+      operationId: get__public_reponse_token
+      description: 'Renvoie toujours le devis avec son statut ; jeton inconnu : 404. Ne modifie rien.'
+      security: []
+      x-roles:
+      - PUBLIC
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevisPublic'
+        '404':
+          $ref: '#/components/responses/E404'
+  /public/reponse/{token}/accepter:
+    post:
+      summary: Le client accepte le devis
+      operationId: post__public_reponse_token_accepter
+      description: 409 « Ce devis ne peut plus être accepté » si déjà répondu, annulé ou jour de dateValidite passé.
+      security: []
+      x-roles:
+      - PUBLIC
+      x-evenement-publie: DevisAccepte (seulement si le devis a un campagneId)
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevisPublic'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+  /public/reponse/{token}/refuser:
+    post:
+      summary: Le client refuse le devis
+      operationId: post__public_reponse_token_refuser
+      description: 409 « Ce devis ne peut plus être accepté » (mêmes cas).
+      security: []
+      x-roles:
+      - PUBLIC
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevisPublic'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+components:
+  schemas:
+    Erreur:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: Client not found
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - code
+      - message
+      - timestamp
+    Montant:
+      type: number
+      example: 1250.5
+      description: 'Décimal en dinars, trois décimales au plus. Côté Java : BigDecimal, jamais double.'
+    LigneDevis:
+      type: object
+      properties:
+        id: *id001
+        produitId: *id001
+        designation:
+          type: string
+        prixUnitaire: &id007
+          $ref: '#/components/schemas/Montant'
+        tauxTVA:
+          type: number
+          description: Pourcentage, copié du catalogue
+        quantite:
+          type: integer
+          minimum: 1
+        remise:
+          type: number
+          minimum: 0
+          maximum: 100
+        totalLigneHT: *id007
+      required:
+      - id
+      - produitId
+      - designation
+      - prixUnitaire
+      - tauxTVA
+      - quantite
+      - totalLigneHT
+    Devis:
+      type: object
+      properties:
+        id: *id001
+        reference:
+          type: string
+        date:
+          type: string
+          format: date
+        dateValidite:
+          type: string
+          format: date
+        statut:
+          type: string
+          enum: *id008
+        remiseGlobale:
+          type: number
+          minimum: 0
+          maximum: 100
+        totalHT: *id007
+        totalTVA: *id007
+        totalTTC: *id007
+        clientId: *id001
+        clientNom:
+          type: string
+        clientEmail:
+          type: string
+          format: email
+        campagneId:
+          type: string
+          format: uuid
+          nullable: true
+        repondueLe:
+          type: string
+          format: date-time
+          nullable: true
+        creePar: *id001
+        lignes:
+          type: array
+          items:
+            $ref: '#/components/schemas/LigneDevis'
+      required:
+      - id
+      - reference
+      - statut
+      - clientId
+      - totalTTC
+      description: Les montants sont calculés par le service, jamais saisis. Le jeton de réponse n'est jamais exposé.
+      example:
+        id: e41a8b07-6d93-4f2c-a5e8-3b9c0d1f2a47
+        reference: DEV-2026-0042
+        date: '2026-11-18'
+        dateValidite: '2026-12-18'
+        statut: BROUILLON
+        remiseGlobale: 0
+        totalHT: 4200.0
+        totalTVA: 798.0
+        totalTTC: 4998.0
+        clientId: 9a2f7c31-84b6-4d10-b3e5-6c8a1d0e9f52
+        clientNom: Société Atlas
+        clientEmail: contact@atlas.tn
+        campagneId: b3d9a2f1-5c47-4e88-8f0a-1a2b3c4d5e6f
+        repondueLe: null
+        creePar: 5d4c3b2a-1f0e-4d9c-8b7a-6e5f4d3c2b1a
+        lignes:
+        - id: 1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d
+          produitId: 7c1d5e90-2b3a-4f6d-8e71-0a9b8c7d6e5f
+          designation: Audit technique
+          prixUnitaire: 1555.556
+          tauxTVA: 19
+          quantite: 3
+          remise: 10
+          totalLigneHT: 4200.0
+    DevisCreation:
+      type: object
+      properties:
+        clientId: *id001
+        dateValidite:
+          type: string
+          format: date
+          description: Postérieure ou égale à la date du devis
+        campagneId:
+          type: string
+          format: uuid
+          description: Facultatif, non vérifié par Quotation ; l'interface propose la liste des campagnes
+        remiseGlobale:
+          type: number
+          default: 0
+      required:
+      - clientId
+      - dateValidite
+      description: Refusé (422) si le client est INACTIF ; 404 si le client n'existe pas ; 503 si Customer est indisponible.
+      example:
+        clientId: 9a2f7c31-84b6-4d10-b3e5-6c8a1d0e9f52
+        dateValidite: '2026-12-18'
+        campagneId: b3d9a2f1-5c47-4e88-8f0a-1a2b3c4d5e6f
+        remiseGlobale: 0
+    DevisModification:
+      type: object
+      properties:
+        dateValidite:
+          type: string
+          format: date
+        campagneId:
+          type: string
+          format: uuid
+          nullable: true
+        remiseGlobale:
+          type: number
+        clientEmail:
+          type: string
+          format: email
+          description: Corrige l'email copié dans le devis
+      required:
+      - dateValidite
+      description: Devis BROUILLON seulement (409 sinon).
+    LigneSaisie:
+      type: object
+      properties:
+        produitId: *id001
+        quantite:
+          type: integer
+          minimum: 1
+        remise:
+          type: number
+          default: 0
+      required:
+      - produitId
+      - quantite
+      example:
+        produitId: 7c1d5e90-2b3a-4f6d-8e71-0a9b8c7d6e5f
+        quantite: 3
+        remise: 10
+    LigneModification:
+      type: object
+      properties:
+        quantite:
+          type: integer
+          minimum: 1
+        remise:
+          type: number
+      required:
+      - quantite
+    Taxe:
+      type: object
+      properties:
+        id: *id001
+        tauxTVA:
+          type: number
+        description:
+          type: string
+      required:
+      - id
+      - tauxTVA
+    TaxeSaisie:
+      type: object
+      properties:
+        tauxTVA:
+          type: number
+        description:
+          type: string
+      required:
+      - tauxTVA
+    Produit:
+      type: object
+      properties:
+        id: *id001
+        nom:
+          type: string
+        description:
+          type: string
+        prix: *id007
+        taxeId: *id001
+      required:
+      - id
+      - nom
+      - prix
+      - taxeId
+    ProduitSaisie:
+      type: object
+      properties:
+        nom:
+          type: string
+        description:
+          type: string
+        prix: *id007
+        taxeId: *id001
+      required:
+      - nom
+      - prix
+      - taxeId
+      example:
+        nom: Audit technique
+        description: Audit d'une installation
+        prix: 1555.556
+        taxeId: 3e2d1c0b-9a8f-4e7d-b6c5-a4b3c2d1e0f9
+    DevisPublic:
+      type: object
+      properties:
+        reference:
+          type: string
+        date:
+          type: string
+          format: date
+        dateValidite:
+          type: string
+          format: date
+        statut:
+          type: string
+          enum: *id008
+        clientNom:
+          type: string
+        lignes:
+          type: array
+          items:
+            $ref: '#/components/schemas/LigneDevis'
+        totalHT: *id007
+        totalTVA: *id007
+        totalTTC: *id007
+      required:
+      - reference
+      - statut
+      - totalTTC
+      description: 'Vue publique : aucune donnée personnelle autre que le nom. L''interface n''affiche les boutons
+        que si le statut est ENVOYE.'
+      example:
+        reference: DEV-2026-0042
+        date: '2026-11-18'
+        dateValidite: '2026-12-18'
+        statut: ENVOYE
+        clientNom: Société Atlas
+        lignes: []
+        totalHT: 4200.0
+        totalTVA: 798.0
+        totalTTC: 4998.0
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Branché en dernier. En développement, le composant « contexte utilisateur » fournit un utilisateur
+        et un rôle par défaut.
+  responses:
+    E400:
+      description: Requête mal formée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E401:
+      description: Non authentifié
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E403:
+      description: Rôle non autorisé
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E404:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E409:
+      description: État incompatible avec l'action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E422:
+      description: Donnée invalide ou règle métier non respectée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    E503:
+      description: Service dépendant indisponible
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+security:
+- bearerAuth: []
+x-evenement-publie:
+  DevisAccepte: Voir evenements.md.
