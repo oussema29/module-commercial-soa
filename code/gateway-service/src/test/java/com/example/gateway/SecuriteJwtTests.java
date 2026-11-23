@@ -54,6 +54,12 @@ class SecuriteJwtTests {
     }
 
     @Test
+    void laPageSwaggerEtLesDescriptionsDApiSontOuvertesSansJeton() {
+        web.get().uri("/webjars/swagger-ui/index.html").exchange().expectStatus().isOk();
+        web.get().uri("/docs/customer/v3/api-docs").exchange().expectStatus().isOk();
+    }
+
+    @Test
     void unJetonValideEstTransmisAuService() throws Exception {
         String jeton = jeton("MARKETING", Instant.now().plusSeconds(600), SECRET);
         web.get().uri("/campagnes").header("Authorization", jeton).exchange()

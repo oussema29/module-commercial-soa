@@ -9,6 +9,29 @@ spring:
       # Une route = un préfixe de chemin -> un service. La passerelle ne contient AUCUNE règle métier : elle route seulement,
       # et retransmet l'en-tête Authorization tel quel (les services décident des droits).
       routes:
+        # Descriptions d'API des services, pour la page Swagger de la passerelle : /docs/<service>/v3/api-docs -> /v3/api-docs du service.
+        # L'en-tête Host d'origine est conservé pour que les essais lancés depuis Swagger passent par la passerelle.
+        - id: docs-customer
+          uri: ${CUSTOMER_URL:http://localhost:8081}
+          predicates:
+            - Path=/docs/customer/v3/api-docs/**
+          filters:
+            - PreserveHostHeader
+            - RewritePath=/docs/customer/(?<reste>.*), /$\{reste}
+        - id: docs-quotation
+          uri: ${QUOTATION_URL:http://localhost:8082}
+          predicates:
+            - Path=/docs/quotation/v3/api-docs/**
+          filters:
+            - PreserveHostHeader
+            - RewritePath=/docs/quotation/(?<reste>.*), /$\{reste}
+        - id: docs-campaign
+          uri: ${CAMPAIGN_URL:http://localhost:8083}
+          predicates:
+            - Path=/docs/campaign/v3/api-docs/**
+          filters:
+            - PreserveHostHeader
+            - RewritePath=/docs/campaign/(?<reste>.*), /$\{reste}
         - id: customer
           uri: ${CUSTOMER_URL:http://localhost:8081}
           predicates:
@@ -31,6 +54,14 @@ spring:
             allowedOriginPatterns: "*"      # développement : à restreindre à l'adresse de l'interface en production
             allowedMethods: "*"
             allowedHeaders: "*"
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:                           # un menu déroulant : une description d'API par service
+      - { name: Clients (Customer), url: /docs/customer/v3/api-docs }
+      - { name: Devis (Quotation), url: /docs/quotation/v3/api-docs }
+      - { name: Campagnes (Campaign), url: /docs/campaign/v3/api-docs }
 
 app:
   security:

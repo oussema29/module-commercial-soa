@@ -52,6 +52,8 @@ Tout dans Docker, services compris :
 docker compose --profile services up -d --build
 ```
 
+**Swagger unique.** Avec la passerelle démarrée : `http://localhost:8080/swagger-ui.html`, un menu déroulant donne les routes de Customer, Quotation et Campaign.
+
 ## Authentification
 
 Par défaut, aucune authentification. Avec `SECURITY_MODE=jwt` (et `JWT_SECRET` d'au moins 32 caractères), chaque route d'employé exige un JWT et le rôle prévu au contrat ; les routes `/public/**` restent ouvertes. Le jeton s'obtient par `POST /login` sur `auth-service` (utilisateurs fictifs, provisoire).

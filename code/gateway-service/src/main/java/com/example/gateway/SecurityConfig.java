@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .authorizeExchange(e -> e
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers("/public/**", "/login", "/actuator/health", "/actuator/health/**").permitAll()
+                        .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/webjars/**", "/v3/api-docs/**", "/docs/**").permitAll()
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(o -> o
                         .jwt(j -> j.jwtDecoder(decodeur(secret)))
