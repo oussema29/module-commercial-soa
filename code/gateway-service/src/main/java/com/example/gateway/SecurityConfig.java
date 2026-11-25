@@ -42,8 +42,13 @@ public class SecurityConfig {
                         .pathMatchers("/public/**", "/login", "/actuator/health", "/actuator/health/**").permitAll()
                         .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/webjars/**", "/v3/api-docs/**", "/docs/**").permitAll()
                         .anyExchange().authenticated())
+                // Filtre JWT fourni par Spring Security (« resource server »), à la place d'un filtre écrit à la main :
+                // il lit l'en-tête « Authorization: Bearer <jeton> » et rejette la requête si le jeton est invalide.
                 .oauth2ResourceServer(o -> o
+                        // Comment vérifier le jeton : signature HS256 avec le secret partagé + date d'expiration
                         .jwt(j -> j.jwtDecoder(decodeur(secret)))
+                        // Jeton absent, mal formé, mal signé ou expiré : réponse 401 au format JSON du module,
+                        // et la requête n'est pas transmise au service
                         .authenticationEntryPoint((exchange, e) -> erreur(json, exchange.getResponse(), HttpStatus.UNAUTHORIZED, "Authentification requise")));
         return http.build();
     }

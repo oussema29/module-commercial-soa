@@ -11,6 +11,13 @@ spring:
       routes:
         # Descriptions d'API des services, pour la page Swagger de la passerelle : /docs/<service>/v3/api-docs -> /v3/api-docs du service.
         # L'en-tête Host d'origine est conservé pour que les essais lancés depuis Swagger passent par la passerelle.
+        - id: docs-auth
+          uri: ${AUTH_URL:http://localhost:8084}
+          predicates:
+            - Path=/docs/auth/v3/api-docs/**
+          filters:
+            - PreserveHostHeader
+            - RewritePath=/docs/auth/(?<reste>.*), /$\{reste}
         - id: docs-customer
           uri: ${CUSTOMER_URL:http://localhost:8081}
           predicates:
@@ -58,7 +65,9 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+    urls-primary-name: Connexion (Auth) - commencer ici   # la page s'ouvre sur le login (sinon : ordre alphabétique, Campagnes en premier)
     urls:                           # un menu déroulant : une description d'API par service
+      - { name: Connexion (Auth) - commencer ici, url: /docs/auth/v3/api-docs }
       - { name: Clients (Customer), url: /docs/customer/v3/api-docs }
       - { name: Devis (Quotation), url: /docs/quotation/v3/api-docs }
       - { name: Campagnes (Campaign), url: /docs/campaign/v3/api-docs }

@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Un seul point d'entrée pour tout le module : le routage vers les services, la retransmission du jeton et, en option, le refus des requêtes sans jeton valide |
 | **Dossier de code** | `code/gateway-service` |
 | **Prérequis** | E4 validée (login) ; E3 validée (JWT dans les services) |
-| **État** | Code de la passerelle fait, testé ; bloc docker-compose et scénario complet à la fin |
+| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
 
 ## 1. Objectif
 

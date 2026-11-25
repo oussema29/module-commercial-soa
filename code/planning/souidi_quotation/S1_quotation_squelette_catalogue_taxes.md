@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Catalogue de produits et taux de TVA |
 | **Dossier de code** | `code/quotation-service` |
 | **Prérequis** | Aucun autre service : Quotation démarre seul (la structure de dossiers est décrite en B0) |
-| **État** | À faire (Oussema Souidi) |
+| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
 
 ## 1. Objectif
 

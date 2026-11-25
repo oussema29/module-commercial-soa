@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Mesures, performance (CPC, ROI), rapport PDF, fin automatique des campagnes |
 | **Dossier de code** | `code/campaign-service` |
 | **Prérequis** | A3 validée (l'essai du chiffre d'affaires attribué demande E1) |
-| **État** | Fait (Oussema Arfaoui) : testé |
+| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
 
 ## 1. Objectif
 

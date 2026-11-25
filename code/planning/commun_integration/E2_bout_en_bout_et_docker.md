@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Scénario complet campagne → prospect → devis → ROI, cas de panne, Docker |
 | **Dossier de code** | `code/ (les trois services)` |
 | **Prérequis** | E1 et A4 validées |
-| **État** | Image Docker et service de Campaign faits ; ceux de Customer et de Quotation à faire ; assemblage et scénario à la fin |
+| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
 
 ## 1. Objectif
 

@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Création et modification des devis, lignes, calcul HT / TVA / TTC, annulation, historique par client ; lecture de Customer (lien I1) |
 | **Dossier de code** | `code/quotation-service` |
 | **Prérequis** | S1 validée. Customer est **simulé** pendant le développement (réponses du contrat `customer.yaml`) ; l'essai réel se fait quand B1 est validée |
-| **État** | À faire (Oussema Souidi) |
+| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
 
 ## 1. Objectif
 

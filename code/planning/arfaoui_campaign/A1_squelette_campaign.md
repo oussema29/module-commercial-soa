@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Base technique de Campaign |
 | **Dossier de code** | `code/campaign-service` |
 | **Prérequis** | Aucun autre service : Campaign démarre seul (la structure de dossiers est décrite en B0) |
-| **État** | Fait (Oussema Arfaoui) : service Campaign, testé |
+| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
 
 ## 1. Objectif
 

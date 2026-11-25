@@ -52,8 +52,9 @@ class DocumentationTests {
     }
 
     @Test
-    void leMenuListeLesTroisServices() {
+    void leMenuListeLaConnexionEtLesTroisServices() {
+        // Connexion (Auth), Clients, Devis, Campagnes
         web.get().uri("/v3/api-docs/swagger-config").exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$.urls.length()").isEqualTo(3);
+                .expectBody().jsonPath("$.urls.length()").isEqualTo(4);
     }
 }

@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Authentification JWT et contrôle des rôles |
 | **Dossier de code** | `code/ (les trois services)` |
 | **Prérequis** | E2 validée ; service Authentication de l'autre trinôme disponible |
-| **État** | Part de Campaign faite ; parts de Customer et de Quotation à faire |
+| **État** | Réalisé avec un secret JWT partagé ; le service Authentication de l'autre trinôme n'existe pas encore |
 
 ## 1. Objectif
 

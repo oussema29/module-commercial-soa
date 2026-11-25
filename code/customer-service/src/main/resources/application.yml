@@ -23,9 +23,23 @@ spring:
     port: 5672
     username: guest
     password: guest
+    listener:
+      simple:
+        acknowledge-mode: manual   # accusé de réception envoyé par le code, après le traitement
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+
+app:
+  # Tant que le JWT n'est pas branché, l'auteur d'une interaction est cette valeur fixe
+  default-user-id: 00000000-0000-0000-0000-000000000001
+  security:
+    # none : aucune authentification (développement) ; jwt : chaque route d'employé exige un JWT valide
+    mode: ${SECURITY_MODE:none}
+    # Secret partagé avec le service Authentication (32 caractères au moins). Jamais de vrai secret dans git : variable d'environnement.
+    jwt-secret: ${JWT_SECRET:secret-de-developpement-secret-de-developpement-0123}
+    # Nom du champ du JWT qui contient le rôle (à confirmer avec le service Authentication)
+    role-claim: role

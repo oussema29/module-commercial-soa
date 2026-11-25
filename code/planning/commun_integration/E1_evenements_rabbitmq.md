@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Les deux événements RabbitMQ (liens I3 et I4), traités sans doublon |
 | **Dossier de code** | `code/ (les trois services)` |
 | **Prérequis** | B2, S3 et A3 validées ; RabbitMQ démarré |
-| **État** | Part de Campaign faite ; parts de Customer et de Quotation à faire |
+| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
 
 ## 1. Objectif
 

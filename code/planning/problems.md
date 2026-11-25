@@ -1,12 +1,18 @@
-# Journal des problèmes rencontrés et corrigés
+# Journal des problèmes trouvés pendant l'essai complet
 
-**But.** Noter chaque erreur trouvée en réalisant les étapes (B0 à E5), la corriger dans les fiches et le contrat, et la faire valider par le trinôme.
+**But.** Réaliser **tout le projet** (étapes B0 à E3) en suivant les guides et les fiches, noter chaque erreur trouvée, corriger les guides et les fiches, puis faire valider ce journal par le trinôme avant que les collègues travaillent à partir des documents corrigés.
 
-Tout a été essayé avec **les vraies bases MySQL, le vrai RabbitMQ et les services dans Docker**.
+**Note.** Les guides de code (avec le code complet de chaque étape) ne sont **pas** dans ce dépôt : ils sont dans un dossier local `guides/`, ignoré par git, qui part de la branche `main` et reconstruit exactement cette application. Les lignes ci-dessous qui parlent de « guide » décrivent leur historique.
+
+**Comment l'essai a été fait**
+- Un point de contrôle a été commité avant de commencer : étiquette git `checkpoint-avant-essai-complet`. Tout l'essai est sur la branche `essai-complet`. Rien n'est poussé en ligne.
+- Customer et Quotation : le code a été **reconstruit à partir des seuls blocs de code des guides**, puis testé.
+- Campaign (A1 à A4), événements (E1), Docker (E2) et JWT (E3) n'ont pas de guide de code : ils ont été réalisés **à partir des fiches**.
+- Tout a été essayé avec **les vraies bases MySQL, le vrai RabbitMQ et les trois services dans Docker**.
 
 **États possibles :** *Corrigé, à valider* (la correction est faite, le trinôme doit la confirmer) · *Résolu* (vérifié) · *Ouvert* (reste à faire) · *Limite assumée* (connue, non corrigée volontairement).
 
-## Résultats
+## Résultats de l'essai complet
 
 | Contrôle | Résultat |
 |---|---|
@@ -35,7 +41,7 @@ Tout a été essayé avec **les vraies bases MySQL, le vrai RabbitMQ et les serv
 | P3 | Squelette B0, `GlobalExceptionHandler` de Customer | Un paramètre obligatoire manquant (`GET /clients/destinataires` sans `categorieId`) renvoyait l'erreur par défaut de Spring, pas le format `{code, message, timestamp}` ; une violation d'unicité en base (deux requêtes simultanées avec le même email) donnait une erreur 500 | Corps d'erreur incohérent avec le contrat ; 500 au lieu de 409 | Le gestionnaire traite `MissingServletRequestParameterException` (400) et `DataIntegrityViolationException` (409). Quotation et Campaign ont le même, plus le verrou optimiste | Corrigé, à valider |
 | P4 | Fiche B1, modèle de données | Les champs de date s'appelaient `creeLe` et `modifieLe`, alors que le contrat et le code utilisent `createdAt` et `updatedAt` | Un lecteur de la fiche écrirait des noms qui ne correspondent pas au contrat | Fiche corrigée | Corrigé, à valider |
 | P5 | Fiches B1 et B2 | Elles annonçaient « valeur d'énumération inconnue → 422 » (statut, type d'interaction) | Le test attendu aurait échoué : Spring renvoie 400 pour une valeur d'énumération inconnue | Fiches corrigées : 400 pour une valeur inconnue, 422 pour un champ absent | Corrigé, à valider |
-| P6 | Fiche S3, « Points d'attention » | « Le jeton ne doit jamais être dans les logs » contredisait le test à la main, qui demande de le copier depuis la console | Instruction contradictoire pour Souidi | Précisé : jamais dans les réponses aux employés ; tant que l'email est simulé, il n'apparaît que dans la console | Corrigé, à valider |
+| P6 | Fiche S3, « Points d'attention » | « Le jeton ne doit jamais être dans les logs » contredisait l'essai à la main, qui demande de le copier depuis la console | Instruction contradictoire pour Souidi | Précisé : jamais dans les réponses aux employés ; tant que l'email est simulé, il n'apparaît que dans la console | Corrigé, à valider |
 | P17 | Guide Quotation, S3, `DevisAccepteEvent` | L'événement n'avait pas le champ `type` de l'enveloppe commune (`eventId`, `type`, `date`) exigée par `contrat_api/evenements.md` | Campaign ne reconnaîtrait pas l'événement conformément au contrat ; le contrat et le code divergeaient | Champ `type` ajouté (valeur `DevisAccepte`) dans le guide, le code et le test | Corrigé, à valider |
 | P18 | Campaign A2, services (constaté en testant) | Quand un public, un contenu ou un produit est ajouté ou retiré dans la collection d'une campagne, il n'est retrouvable par son identifiant qu'après la fin de la transaction. 5 tests ont échoué | En production chaque requête a sa transaction : invisible ; mais impossible à tester | `flush()` appelé après chaque ajout et chaque retrait ; fiche A2 complétée | Corrigé, à valider |
 
@@ -84,8 +90,9 @@ Tout a été essayé avec **les vraies bases MySQL, le vrai RabbitMQ et les serv
 
 ---
 
-## Marche à suivre
+## Marche à suivre après validation
 
 1. Le trinôme relit ce journal et confirme ou conteste chaque ligne « Corrigé, à valider ».
 2. Les lignes « Ouvert » sont traitées (en priorité P14 avec un collègue, puis P15 pour Campaign).
-3. Chacun avance sur sa part à partir des fiches corrigées ; l'assemblage vient en dernier.
+3. On revient au point de contrôle (`git checkout main`, étiquette `checkpoint-avant-essai-complet`) et on y reporte **seulement les corrections des documents** (guides, fiches, contrat, ce journal) : le code de l'essai reste sur la branche `essai-complet` comme référence de ce qui doit marcher.
+4. Le travail en groupe commence à partir des guides corrigés.
