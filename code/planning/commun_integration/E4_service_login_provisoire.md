@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Obtenir un jeton par un vrai login, pour démontrer la sécurité de bout en bout |
 | **Dossier de code** | `code/auth-service` |
 | **Prérequis** | E3 validée (les trois services vérifient déjà le JWT) |
-| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; PROVISOIRE : à remplacer par le service Authentication de l'autre trinôme |
+| **État** | Réalisé ; PROVISOIRE : à remplacer par le service Authentication de l'autre trinôme |
 
 ## 1. Objectif
 

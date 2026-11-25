@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Base technique : dossier de code, bases de données, structure d'un service |
 | **Dossier de code** | `code/customer-service` |
 | **Prérequis** | Java 21 ou plus, Maven 3, Docker |
-| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
+| **État** | Réalisé ; à valider par le trinôme |
 
 ## 1. Objectif
 

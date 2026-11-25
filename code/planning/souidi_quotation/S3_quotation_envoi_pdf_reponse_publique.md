@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | PDF et envoi du devis par email, réponse du client par lien (accepter, refuser), expiration automatique ; l'événement `DevisAccepte` est publié en E1 |
 | **Dossier de code** | `code/quotation-service` |
 | **Prérequis** | S2 validée |
-| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
+| **État** | Réalisé ; à valider par le trinôme |
 
 ## 1. Objectif
 

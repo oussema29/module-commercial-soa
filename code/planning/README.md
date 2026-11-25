@@ -71,18 +71,18 @@ Jamais de mot de passe réel, de fichier `.env` ni de `target/` dans git. Les id
 
 | Étape | Fiche | Responsable | État |
 |---|---|---|---|
-| B0 | [Structure du code et squelette Customer](baha_customer/B0_structure_et_squelette_customer.md) | Baha Farhati | Réalisé en essai, à valider |
-| B1 | [Customer : catégories et clients](baha_customer/B1_customer_categories_et_clients.md) | Baha Farhati | Réalisé en essai, à valider |
-| B2 | [Customer : contacts et interactions](baha_customer/B2_customer_contacts_et_interactions.md) | Baha Farhati | Réalisé en essai, à valider |
-| S1 | [Quotation : squelette, catalogue et taxes](souidi_quotation/S1_quotation_squelette_catalogue_taxes.md) | Oussema Souidi | Réalisé en essai, à valider |
-| S2 | [Quotation : devis, lignes et calcul](souidi_quotation/S2_quotation_devis_et_calcul.md) | Oussema Souidi | Réalisé en essai, à valider |
-| S3 | [Quotation : PDF, envoi, réponse publique et expiration](souidi_quotation/S3_quotation_envoi_pdf_reponse_publique.md) | Oussema Souidi | Réalisé en essai, à valider |
-| A1 | [Campaign : squelette du service](arfaoui_campaign/A1_squelette_campaign.md) | Oussema Arfaoui | Réalisé en essai, à valider |
-| A2 | [Campaign : campagnes, publics, canaux, contenus et budget](arfaoui_campaign/A2_campaign_campagnes_publics_canaux_contenus_budget.md) | Oussema Arfaoui | Réalisé en essai, à valider |
-| A3 | [Campaign : lancement, invitations et réponses publiques](arfaoui_campaign/A3_campaign_lancement_invitations_reponses.md) | Oussema Arfaoui | Réalisé en essai, à valider |
-| A4 | [Campaign : mesures, performance, ROI, rapport et fin planifiée](arfaoui_campaign/A4_campaign_performance_roi_taches.md) | Oussema Arfaoui | Réalisé en essai, à valider |
-| E1 | [Événements RabbitMQ : ProspectGenere et DevisAccepte](commun_integration/E1_evenements_rabbitmq.md) | Tout le trinôme | Réalisé en essai, à valider |
-| E2 | [Scénario de bout en bout et Docker des services](commun_integration/E2_bout_en_bout_et_docker.md) | Tout le trinôme | Réalisé en essai, à valider |
-| E3 | [Authentification JWT et contrôle des rôles](commun_integration/E3_jwt_et_roles.md) | Tout le trinôme | Réalisé en essai, à valider |
-| E4 | [Service de login provisoire (utilisateurs fictifs et émission de JWT)](commun_integration/E4_service_login_provisoire.md) | Tout le trinôme | Réalisé en essai, à valider |
-| E5 | [Passerelle (API Gateway) : un seul point d'entrée](commun_integration/E5_passerelle.md) | Tout le trinôme | Réalisé en essai, à valider |
+| B0 | [Structure du code et squelette Customer](baha_customer/B0_structure_et_squelette_customer.md) | Baha Farhati | Réalisé, à valider |
+| B1 | [Customer : catégories et clients](baha_customer/B1_customer_categories_et_clients.md) | Baha Farhati | Réalisé, à valider |
+| B2 | [Customer : contacts et interactions](baha_customer/B2_customer_contacts_et_interactions.md) | Baha Farhati | Réalisé, à valider |
+| S1 | [Quotation : squelette, catalogue et taxes](souidi_quotation/S1_quotation_squelette_catalogue_taxes.md) | Oussema Souidi | Réalisé, à valider |
+| S2 | [Quotation : devis, lignes et calcul](souidi_quotation/S2_quotation_devis_et_calcul.md) | Oussema Souidi | Réalisé, à valider |
+| S3 | [Quotation : PDF, envoi, réponse publique et expiration](souidi_quotation/S3_quotation_envoi_pdf_reponse_publique.md) | Oussema Souidi | Réalisé, à valider |
+| A1 | [Campaign : squelette du service](arfaoui_campaign/A1_squelette_campaign.md) | Oussema Arfaoui | Réalisé, à valider |
+| A2 | [Campaign : campagnes, publics, canaux, contenus et budget](arfaoui_campaign/A2_campaign_campagnes_publics_canaux_contenus_budget.md) | Oussema Arfaoui | Réalisé, à valider |
+| A3 | [Campaign : lancement, invitations et réponses publiques](arfaoui_campaign/A3_campaign_lancement_invitations_reponses.md) | Oussema Arfaoui | Réalisé, à valider |
+| A4 | [Campaign : mesures, performance, ROI, rapport et fin planifiée](arfaoui_campaign/A4_campaign_performance_roi_taches.md) | Oussema Arfaoui | Réalisé, à valider |
+| E1 | [Événements RabbitMQ : ProspectGenere et DevisAccepte](commun_integration/E1_evenements_rabbitmq.md) | Tout le trinôme | Réalisé, à valider |
+| E2 | [Scénario de bout en bout et Docker des services](commun_integration/E2_bout_en_bout_et_docker.md) | Tout le trinôme | Réalisé, à valider |
+| E3 | [Authentification JWT et contrôle des rôles](commun_integration/E3_jwt_et_roles.md) | Tout le trinôme | Réalisé, à valider |
+| E4 | [Service de login provisoire (utilisateurs fictifs et émission de JWT)](commun_integration/E4_service_login_provisoire.md) | Tout le trinôme | Réalisé, à valider |
+| E5 | [Passerelle (API Gateway) : un seul point d'entrée](commun_integration/E5_passerelle.md) | Tout le trinôme | Réalisé, à valider |

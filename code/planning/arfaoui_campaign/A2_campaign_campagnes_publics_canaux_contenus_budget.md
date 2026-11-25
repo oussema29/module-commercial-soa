@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Campagnes et cycle de vie, publics, canaux, contenus, budget prévu |
 | **Dossier de code** | `code/campaign-service` |
 | **Prérequis** | A1 validée |
-| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
+| **État** | Réalisé ; à valider par le trinôme |
 
 ## 1. Objectif
 

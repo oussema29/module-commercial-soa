@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Lancement, invitations par email, renvoi des échecs, réponses publiques ; lecture de Customer (lien I2) |
 | **Dossier de code** | `code/campaign-service` |
 | **Prérequis** | A2 validée. Customer est **simulé** pendant le développement ; l'essai réel se fait quand B1 est validée |
-| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
+| **État** | Réalisé ; à valider par le trinôme |
 
 ## 1. Objectif
 

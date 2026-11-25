@@ -94,4 +94,4 @@ Un membre = un service = un dossier = une base. Le détail (qui fait quoi, ordre
 
 Chaque étape se termine par `mvn clean test` au vert et un essai à la main avec Swagger (`http://localhost:808x/swagger-ui.html`), puis par la validation du trinôme.
 
-Avancement : **toutes les étapes (B0 à E5) ont été réalisées lors de l'essai complet** (branche `essai-complet`) et sont à valider. Les scénarios joués sont dans `planning/commun_integration/scenarios.md`.
+Avancement : **toutes les étapes (B0 à E5) ont été réalisées** et sont à valider. Les scénarios joués sont dans `planning/commun_integration/scenarios.md`.

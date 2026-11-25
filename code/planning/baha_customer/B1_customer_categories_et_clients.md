@@ -7,7 +7,7 @@
 | **Ce que couvre l'étape** | Fiches clients et prospects (créer, modifier, rechercher, supprimer), email unique, statuts, catégories, liste de destinataires pour Campaign |
 | **Dossier de code** | `code/customer-service` |
 | **Prérequis** | B0 validée |
-| **État** | Réalisé lors de l'essai complet (branche `essai-complet`) ; à valider par le trinôme |
+| **État** | Réalisé ; à valider par le trinôme |
 
 ## 1. Objectif
 
