@@ -71,7 +71,7 @@
 
 | N° | Sujet | Détail | État |
 |---|---|---|---|
-| P14 | Qui a suivi les guides | Un seul membre du trinôme a fait le passage complet, avec une connaissance du contexte que les collègues n'ont pas | **Ouvert** : un collègue suit une étape (par exemple S1) sans aide et note ce qui l'arrête |
+| P14 | Qui a suivi les guides | Le passage complet a été fait avec une connaissance du contexte que les collègues n'ont pas | **Ouvert** : un collègue suit une étape (par exemple S1) sans aide et note ce qui l'arrête |
 | P15 | Guides de code manquants | Il n'y a pas de guide de code pour Campaign (A1 à A4), les événements (E1), Docker (E2) et JWT (E3). Ces parties ont été faites à partir des fiches : les fiches sont donc **testées**, mais pas encore un guide copiable | **Ouvert** |
 | P16 | Documents remis au prof | Aucune des erreurs ci-dessus ne contredit `rapport_detaille` ni le cahier des charges, sauf à relire P22 (JWT) | À confirmer par le trinôme |
 | P23 | Pas d'« outbox » | L'événement est publié dans la transaction de l'acceptation (ou de la réponse du visiteur). Si RabbitMQ est arrêté, la donnée métier est conservée et l'événement est écrit **en JSON** dans les logs (niveau ERROR) pour être republié à la main ; si la transaction échoue après l'envoi, le message est déjà parti | **Limite assumée** |
